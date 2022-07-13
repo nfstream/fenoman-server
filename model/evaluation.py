@@ -69,3 +69,6 @@ class Evaluation:
         """
         val_steps = 5 if rnd < 4 else 10
         return {"val_steps": val_steps}
+
+
+evaluation = Evaluation()
