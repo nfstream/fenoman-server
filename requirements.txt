@@ -3,3 +3,4 @@ flask
 pymysql
 flwr
 tensorflow
+pymongo

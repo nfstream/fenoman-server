@@ -1,21 +1,22 @@
 import pymysql
 from patterns.singleton import singleton
-from configuration.database_configuration import *
+from configuration.sql_database_configuration import *
 import csv
 
 
 @singleton
-class Database:
+class SqlDataBase:
     def __init__(self):
         self.__connection = None
 
-    def connect(self):
+    def connect(self, hostname: str = DATABASE_HOST, port: int = DATABASE_PORT, user: str = DATABASE_USER,
+                password: str = DATABASE_PASSWORD, database: str = DATABASE):
         self.__connection = pymysql.connect(
-            host=DATABASE_HOST,
-            port=DATABASE_PORT,
-            user=DATABASE_USER,
-            password=DATABASE_PASSWORD,
-            database=DATABASE
+            host=hostname,
+            port=port,
+            user=user,
+            password=password,
+            database=database
         )
 
     def query_tables(self):
@@ -39,3 +40,6 @@ class Database:
 
     def close(self) -> None:
         self.__connection.close()
+
+
+sql_database = SqlDataBase()

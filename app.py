@@ -7,7 +7,7 @@ core = Core()
 
 
 @app.route('/', methods=["GET", "POST"])
-def default_route() -> str:
+def default_route() -> str: 
     return "200"
 
 
