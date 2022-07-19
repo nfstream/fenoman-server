@@ -6,6 +6,8 @@ from typing import Optional, Tuple, Dict
 
 @singleton
 class Evaluation:
+
+    # TODO itt baj van a data miatt meg kell nézni hogy kellene ezt kezelni
     @staticmethod
     def get_evaluation(model: Model, data, validation_split: float = 0.1):
         """
@@ -15,6 +17,7 @@ class Evaluation:
         :param validation_split:
         :return:
         """
+        # TODO baj van mert itt DATA nem lehet! ez a szerver itt csak akkor lehet ha mérünk valami lokális adatot és tesztelünk itt is!!!
         # TODO splitting mechanisms required here!
         (x_train, y_train) = data
         split_size = len(x_train) * (1 - validation_split)
