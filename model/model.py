@@ -6,7 +6,7 @@ from typing import Any
 
 @singleton
 class Model:
-    def __init__(self):
+    def __init__(self) -> None:
         # laod here the given model, it must be universal
         self.__model = None
 

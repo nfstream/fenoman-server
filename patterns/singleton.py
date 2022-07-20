@@ -10,7 +10,7 @@ def singleton(class_: Any) -> Callable[[Any, Any], Any]:
     """
     __instances = {}
 
-    def get_instance(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+    def get_instance(*args: Any, **kwargs: Any) -> Any:
         """
         This function checks if there are any instances registered in the dictionary if not it will return a new
         instances of a class.

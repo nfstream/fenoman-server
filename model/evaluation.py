@@ -2,6 +2,7 @@ from model import Model
 import flwr as fl
 from patterns.singleton import singleton
 from typing import Optional, Tuple, Dict
+from model.data import data
 
 
 @singleton
@@ -9,7 +10,7 @@ class Evaluation:
 
     # TODO itt baj van a data miatt meg kell nézni hogy kellene ezt kezelni
     @staticmethod
-    def get_evaluation(model: Model, data, validation_split: float = 0.1):
+    def get_evaluation(model: Model, validation_split: float = 0.1):
         """
         Return an evaluation function for server-side evaluation.
         :param model:
@@ -19,7 +20,7 @@ class Evaluation:
         """
         # TODO baj van mert itt DATA nem lehet! ez a szerver itt csak akkor lehet ha mérünk valami lokális adatot és tesztelünk itt is!!!
         # TODO splitting mechanisms required here!
-        (x_train, y_train) = data
+        (x_train, y_train) = data()
         split_size = len(x_train) * (1 - validation_split)
         x_val, y_val = x_train[split_size:], y_train[split_size:]
         score = Model.evaluate(
