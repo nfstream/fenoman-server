@@ -131,3 +131,6 @@ dmypy.json
 # Pycharm specific
 .idea/
 idea/
+
+# data dedicated to the fenoman server
+data/comnet14-*
