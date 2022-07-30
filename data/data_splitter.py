@@ -10,3 +10,7 @@ def split_dataset():
 
     for idx, sub_dfs in enumerate(sub_dfs):
         sub_dfs.to_csv(f'./comnet14-flows-part-{idx}.csv', index=False)
+
+
+if __name__ == '__main__':
+    split_dataset()

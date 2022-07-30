@@ -22,7 +22,12 @@ def default_route() -> str:
 
 
 # TODO
-def get_latest_model():
+def get_avilable_models():
+    # lista az elérhető modellekről
+    pass
+
+
+def get_latest_model(name: str):
     # a legújabb model leküldése a kliens számára
     pass
 

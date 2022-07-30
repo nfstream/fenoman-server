@@ -8,6 +8,8 @@ from data.data import data
 @singleton
 class Model:
     def __init__(self) -> None:
+        # TODO majd ezt meg kell csinálni, hogy ha most lett compilolva akkor 1x tanítani kell, ha már meglévőt szeretnénk
+        #   haszánlni akkor az nem szükséges az adatbázisból majd ezt is le kell tölteni!
         self.__model = tf.keras.Sequential()
         self.__model.add(tf.keras.layers.Dense(500, activation='relu'))
         self.__model.add(tf.keras.layers.Dense(100, activation='relu'))
