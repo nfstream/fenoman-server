@@ -6,3 +6,6 @@ tensorflow
 pymongo
 timeloop
 numpy
+utils
+sklearn
+pandas
