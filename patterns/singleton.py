@@ -1,7 +1,7 @@
-from typing import Any, Callable
+from typing import Any
 
 
-def singleton(class_: Any) -> Callable[[Any, Any], Any]:
+def singleton(class_: Any) -> Any:
     """
     This is the singleton pattern, which is a software design pattern that restricts the instantiation of a class to
     one single instance. This is useful when exactly one object is needed to coordinate actions across the system.

@@ -1,6 +1,8 @@
 typing
 flask
 pymysql
-flwr
+flwr==1.0.0
 tensorflow
 pymongo
+timeloop
+numpy

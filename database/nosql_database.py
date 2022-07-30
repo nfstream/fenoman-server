@@ -24,7 +24,7 @@ class NoSqlDataBase:
         else:
             self.__database = self.__client[database]
 
-        if collection in self.__database.collection_names():
+        if collection in self.__database.list_collection_names():
             self.__collection = self.__database.get_collection(collection)
         else:
             self.__collection = self.__database[collection]
@@ -44,7 +44,7 @@ class NoSqlDataBase:
         if exists:
             res, success = 'Element already exists in the DataBase!', False
         else:
-            res, success = self.__collection.insert(insert_data_dict), True
+            res, success = self.__collection.insert_one(insert_data_dict), True
         return str(res), success
 
     def get_element(self, search_fields: dict) -> Tuple[Union[list, str], bool]:
@@ -55,7 +55,7 @@ class NoSqlDataBase:
         :return: records found
         """
         resp_data = []
-        if self.__collection.find(search_fields).count() > 0:
+        if self.__collection.count_documents(search_fields) > 0:
             for element in self.__collection.find(search_fields):
                 resp_data.append(element)
             return resp_data, True
@@ -68,6 +68,7 @@ class NoSqlDataBase:
         :param search_fields: search value of records to be deleted
         :return: number of records deleted
         """
+        return NotImplemented
         resp = self.__collection.delete_many(search_fields)
         if resp.deleted_count > 0:
             return resp.deleted_count, True
@@ -79,6 +80,7 @@ class NoSqlDataBase:
         Deletes the collection with all its contents.
         :return: none
         """
+        return NotImplemented
         self.__collection.drop()
 
     def update_element(self, search_fields: dict, update_data: dict) -> UpdateResult:
@@ -88,6 +90,7 @@ class NoSqlDataBase:
         :param update_data:
         :return:
         """
+        return NotImplemented
         resp = self.__collection.update_many(search_fields, {"$set": update_data})
         return resp
 
