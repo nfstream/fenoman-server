@@ -36,7 +36,7 @@ class Evaluation:
         """
         config = {
             "batch_size": 32,
-            "local_epochs": 1 if rnd < 2 else 2,
+            "local_epochs": 1 if rnd < 2 else 100,
         }
         return config
 

@@ -21,5 +21,18 @@ def split_dataset():
     print(df['application_name'].max())
 
 
+def join_dataset():
+    # TODO: ez azért kellett mert béna voltam meg kell csinálni, hogy mentse ki a teljes data setet a application category labellel
+    df_names = []
+    for i in range(1, 6, 1):
+        df_names.append(f'comnet14-flows-part-{i}.csv')
+    df = pd.read_csv(df_names[0])
+    for i in range(1, 5, 1):
+        df2 = pd.read_csv(df_names[i])
+        df = df.append(df2)
+    df.to_csv('./comnet14-flows-labeled.csv')
+
+
 if __name__ == '__main__':
-    split_dataset()
+    join_dataset()
+    #split_dataset()
