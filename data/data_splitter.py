@@ -1,10 +1,13 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils import shuffle
 
 
 def split_dataset():
     df = pd.read_csv('./comnet14-flows.csv')
     df.sample(frac=1).reset_index(drop=True)
+
+    df = shuffle(df)
 
     label_encoder = LabelEncoder()
     df['application_name'] = label_encoder.fit_transform(df['application_name'])  # LabelEncode text data
