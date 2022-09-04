@@ -116,3 +116,6 @@ class Data:
 
 
 data = Data()
+
+# TODO kell ide hogy le küldjük a mappingot melyik mező mire legyen kódolva!
+#   illetve melyik APP kategória kell mit dobjon ki a kliens

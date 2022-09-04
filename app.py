@@ -1,8 +1,10 @@
-from flask import Flask
+from flask import Flask, Response
 from core.core import Core
 import timeloop
 from datetime import timedelta
 from configuration.flower_configuration import SERVER_JOB_TIMER_MINUTES
+import logging
+from configuration.application_configuration import *
 
 
 app = Flask(__name__)
@@ -12,13 +14,13 @@ tl = timeloop.Timeloop()
 
 @tl.job(interval=timedelta(minutes=SERVER_JOB_TIMER_MINUTES))
 def start_fl_server():
-    print("Starting Flower server.")
+    logging.info("Starting Flower server.")
     core.start_server()
 
 
-@app.route('/', methods=["GET", "POST"])
-def default_route() -> str: 
-    return "200"
+@app.route(f'{BASE_URI}/health', methods=["GET", "POST"])
+def default_route() -> Response:
+    return Response("OK", status=200)
 
 
 # TODO
@@ -27,6 +29,7 @@ def get_avilable_models():
     pass
 
 
+@app.route(f'{BASE_URI}/get_model', methods=["GET"])
 def get_latest_model(name: str):
     # a legújabb model leküldése a kliens számára
     pass

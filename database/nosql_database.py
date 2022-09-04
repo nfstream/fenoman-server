@@ -94,5 +94,23 @@ class NoSqlDataBase:
         resp = self.__collection.update_many(search_fields, {"$set": update_data})
         return resp
 
+    def last_element(self, search_field: dict, key: str) -> Tuple[Union[list, str], bool]:
+        """
+        This function returns the latest element based on the key value. Use the search_field to filter to a given
+        part of the collection.
+
+        :param search_field: field value to look for
+        :param key: field to make the sort
+        :return: latest record
+        """
+        resp_data = []
+        for element in self.__collection.find(search_field).sort([(key, -1)]).limit(1):
+            resp_data.append(element)
+
+        if len(resp_data) > 0:
+            return resp_data, True
+        else:
+            return 'No element in the DataBase with the given search_field', False
+
 
 nosql_database = NoSqlDataBase()

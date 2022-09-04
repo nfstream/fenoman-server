@@ -6,7 +6,9 @@ from configuration.flower_configuration import *
 from database.nosql_database import nosql_database
 import time
 import pickle
+import ast
 from bson.binary import Binary
+from configuration.model_configuration import *
 
 
 class SaveModelStrategy(fl.server.strategy.FedAvg):
@@ -16,15 +18,16 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
             # Save weights
             print(f"Saving round {rnd} weights to nosql database.")
 
-            model_name = f"model-{time.strftime('%b-%d-%Y_%H%M', time.localtime())}"
+            timestamp = time.strftime('%b-%d-%Y_%H%M', time.localtime())
             nosql_database.insert_element(
                 search_data_dict={
-                    "model_name": model_name
+                    "timestamp": timestamp
                 },
                 insert_data_dict={
-                    "model_name": model_name,
+                    "model_name": MODEL_NAME,
+                    "timestamp": timestamp,
                     "weights": Binary(pickle.dumps(weights))
-                } # TODO a typeot is fel kellene tölteni hogy ez melyik típusú modell!
+                }
             )
         return weights
 
@@ -54,6 +57,17 @@ L
         self.__min_available_clients = min_available_clients
         self.__num_rounds = num_rounds
 
+        records, state = nosql_database.last_element({
+            'model_name': MODEL_NAME
+        }, 'timestamp')
+        if state:
+            
+            pickle.loads(records[0]['weights'])
+            # TODO bináris a data itt!
+
+
+
+
         self.__strategy = SaveModelStrategy(
             fraction_fit=fraction_fit,
             fraction_evaluate=fraction_eval,
@@ -62,7 +76,7 @@ L
             min_available_clients=min_available_clients,
             evaluate_fn=evaluation.get_evaluation(model),
             on_fit_config_fn=evaluation.fit_config,
-            on_evaluate_config_fn=evaluation.evaluate_config,
+            on_evaluate_config_fn=evaluation.evaluate_config, # TODO itt az initial paraméter ide kell majd beadni a dolgoakt
             initial_parameters=fl.common.ndarrays_to_parameters(model().get_weights()),
         )
 

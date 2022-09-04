@@ -23,7 +23,7 @@ class Model:
             x_train,
             y_train,
             batch_size=64,
-            epochs=100,
+            epochs=1,
             # We pass some validation for
             # monitoring validation loss and metrics
             # at the end of each epoch
@@ -32,6 +32,9 @@ class Model:
 
     def __call__(self) -> Any:
         return self.__model
+
+    def save_model(self) -> None:
+        self.__model.save('/model/temp/')
 
 
 model = Model()
