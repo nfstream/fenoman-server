@@ -62,14 +62,14 @@ L
         self.__min_available_clients = min_available_clients
         self.__num_rounds = num_rounds
 
-        #print(model().get_weights())
-        #print(fl.common.ndarrays_to_parameters(model().get_weights()))
-
         # We must load in the last model that was used in a given model_name configuration scenario
         initial_parameters = None
-        records, state = nosql_database.last_element({
-            'model_name': MODEL_NAME
-        }, 'timestamp')
+        records, state = nosql_database.last_n_element(
+            search_field={
+                'model_name': MODEL_NAME
+            },
+            key='timestamp',
+            limit=1)
 
         if state:
             print("Previous model parameter state loaded in.")
