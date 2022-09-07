@@ -18,8 +18,8 @@ class Model:
         self.__model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
 
         x_train, y_train, x_val, y_val = data.load_data()
-        print(len(x_train), len(y_train), len(x_val), len(y_val))
-        history = self.__model.fit(
+        #print(len(x_train), len(y_train), len(x_val), len(y_val))
+        self.__history = self.__model.fit(
             x_train,
             y_train,
             batch_size=64,

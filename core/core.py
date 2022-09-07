@@ -5,10 +5,13 @@ from model.evaluation import evaluation
 from configuration.flower_configuration import *
 from database.nosql_database import nosql_database
 import time
+import numpy as np
 import pickle
 import ast
 from bson.binary import Binary
+from io import BytesIO
 from configuration.model_configuration import *
+from typing import cast
 
 
 class SaveModelStrategy(fl.server.strategy.FedAvg):
@@ -19,6 +22,11 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
             print(f"Saving round {rnd} weights to nosql database.")
 
             timestamp = time.strftime('%b-%d-%Y_%H%M', time.localtime())
+            ndarray = fl.common.parameters_to_ndarrays(weights[0])
+
+            bytes_io = BytesIO()
+            np.save(bytes_io, ndarray, allow_pickle=True)
+
             nosql_database.insert_element(
                 search_data_dict={
                     "timestamp": timestamp
@@ -26,7 +34,8 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
                 insert_data_dict={
                     "model_name": MODEL_NAME,
                     "timestamp": timestamp,
-                    "weights": Binary(pickle.dumps(weights))
+                    "weights": bytes_io.getvalue() #fl.common.ndarray_to_bytes(fl.common.parameters_to_ndarrays(weights[0]))
+                    #"weights": Binary(pickle.dumps(weights))
                 }
             )
         return weights
@@ -57,16 +66,23 @@ L
         self.__min_available_clients = min_available_clients
         self.__num_rounds = num_rounds
 
+        #print(model().get_weights())
+        #print(fl.common.ndarrays_to_parameters(model().get_weights()))
+
+        # We must load in the last model that was used in a given model_name configuration scenario
+        initial_parameters = None
         records, state = nosql_database.last_element({
             'model_name': MODEL_NAME
         }, 'timestamp')
         if state:
-            
-            pickle.loads(records[0]['weights'])
-            # TODO bináris a data itt!
-
-
-
+            print("Previous model parameter state loaded in.")
+            bytes_io = BytesIO(records[0]['weights'])
+            ndarry_deserialized = np.load(bytes_io, allow_pickle=True)
+            initial_parameters = fl.common.ndarrays_to_parameters(cast(fl.common.NDArray, ndarry_deserialized))
+        else:
+            print("Previous model paramter is not found, new created.")
+            # TODO ekkor kell csak a model train!
+            initial_parameters = fl.common.ndarrays_to_parameters(model().get_weights())
 
         self.__strategy = SaveModelStrategy(
             fraction_fit=fraction_fit,
@@ -76,8 +92,8 @@ L
             min_available_clients=min_available_clients,
             evaluate_fn=evaluation.get_evaluation(model),
             on_fit_config_fn=evaluation.fit_config,
-            on_evaluate_config_fn=evaluation.evaluate_config, # TODO itt az initial paraméter ide kell majd beadni a dolgoakt
-            initial_parameters=fl.common.ndarrays_to_parameters(model().get_weights()),
+            on_evaluate_config_fn=evaluation.evaluate_config,
+            initial_parameters=initial_parameters,
         )
 
     def start_server(self):

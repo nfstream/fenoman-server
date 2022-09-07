@@ -29,8 +29,8 @@ def get_avilable_models():
     pass
 
 
-@app.route(f'{BASE_URI}/get_model', methods=["GET"])
-def get_latest_model(name: str):
+@app.route(f'{BASE_URI}/get_model/<model_name>', methods=["GET"])
+def get_latest_model(model_name: str):
     # a legújabb model leküldése a kliens számára
     pass
 
