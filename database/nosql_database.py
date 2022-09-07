@@ -94,6 +94,7 @@ class NoSqlDataBase:
         resp = self.__collection.update_many(search_fields, {"$set": update_data})
         return resp
 
+    # TODO ne az utolsót hanem utolsó n-et
     def last_element(self, search_field: dict, key: str) -> Tuple[Union[list, str], bool]:
         """
         This function returns the latest element based on the key value. Use the search_field to filter to a given

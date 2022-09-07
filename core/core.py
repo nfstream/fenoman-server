@@ -31,8 +31,7 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
                 insert_data_dict={
                     "model_name": MODEL_NAME,
                     "timestamp": timestamp,
-                    "weights": bytes_io.getvalue() #fl.common.ndarray_to_bytes(fl.common.parameters_to_ndarrays(weights[0]))
-                    #"weights": Binary(pickle.dumps(weights))
+                    "weights": bytes_io.getvalue()
                 }
             )
         return weights
@@ -71,6 +70,7 @@ L
         records, state = nosql_database.last_element({
             'model_name': MODEL_NAME
         }, 'timestamp')
+
         if state:
             print("Previous model parameter state loaded in.")
             bytes_io = BytesIO(records[0]['weights'])
