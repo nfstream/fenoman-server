@@ -1,4 +1,6 @@
-from flask import Flask, Response
+from json import dumps
+
+from flask import Flask, Response, send_file, make_response
 from core.core import Core
 import timeloop
 from datetime import timedelta
@@ -23,14 +25,18 @@ def default_route() -> Response:
     return Response("OK", status=200)
 
 
-# TODO
+@app.route(f'{BASE_URI}/get_avilable_models', methods=["GET"])
 def get_avilable_models():
     # lista az elérhető modellekről
-    pass
+    models = []
+    models.append("classification")
+    return make_response(dumps(models))
 
 
 @app.route(f'{BASE_URI}/get_model/<model_name>', methods=["GET"])
 def get_latest_model(model_name: str):
+    if model_name == "classification":
+        return send_file(path_or_file="model/temp/classification.h5")
     # a legújabb model leküldése a kliens számára
     pass
 

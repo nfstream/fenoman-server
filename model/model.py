@@ -1,5 +1,7 @@
 import tensorflow as tf
 import flwr as fl
+from sklearn.preprocessing import LabelEncoder
+
 from patterns.singleton import singleton
 from typing import Any
 from data.data import data
@@ -18,6 +20,11 @@ class Model:
         self.__model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
 
         x_train, y_train, x_val, y_val = data.load_data()
+
+        lb = LabelEncoder()
+
+        y_val = lb.fit_transform(y_val)
+        y_train = lb.fit_transform(y_train)
         #print(len(x_train), len(y_train), len(x_val), len(y_val))
         self.__history = self.__model.fit(
             x_train,
@@ -29,12 +36,13 @@ class Model:
             # at the end of each epoch
             validation_data=(x_val, y_val),
         )
+        self.save_model()
 
     def __call__(self) -> Any:
         return self.__model
 
     def save_model(self) -> None:
-        self.__model.save('/model/temp/')
+        self.__model.save('model/temp/classification.h5')
 
 
 model = Model()
