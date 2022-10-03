@@ -1,3 +1,5 @@
+from sklearn.preprocessing import LabelEncoder
+
 from model.model import Model
 import flwr as fl
 import tensorflow as tf
@@ -12,6 +14,10 @@ class Evaluation:
     def get_evaluation(model: Model):
         """Return an evaluation function for server-side evaluation."""
         _, _, x_val, y_val = data.load_data()
+
+        lb = LabelEncoder()
+
+        y_val = lb.fit_transform(y_val)
 
         # The `evaluate` function will be called after every round
         def evaluate(
