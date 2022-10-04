@@ -2,10 +2,10 @@ import pymongo
 from pymongo.results import UpdateResult
 from configuration.nosql_database_configuration import *
 from typing import Tuple, Union
-from patterns.singleton import singleton
+#from patterns.singleton import singleton
 
 
-@singleton
+#@singleton
 class NoSqlDataBase:
     def __init__(self, hostname: str = DATABASE_HOST, port: int = DATABASE_PORT,
                  database: str = DATABASE, collection: str = COLLECTION) -> None:

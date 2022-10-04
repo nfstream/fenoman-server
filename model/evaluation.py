@@ -1,12 +1,15 @@
+import numpy as np
+
 from model.model import Model
 import flwr as fl
 import tensorflow as tf
-from patterns.singleton import singleton
+#from patterns.singleton import singleton
 from typing import Optional, Tuple, Dict
 from data.data import data
+from sklearn.metrics import f1_score, precision_score, recall_score
 
 
-@singleton
+#@singleton
 class Evaluation:
     @staticmethod
     def get_evaluation(model: Model):
@@ -21,7 +24,16 @@ class Evaluation:
         ) -> Optional[Tuple[float, Dict[str, fl.common.Scalar]]]:
             model().set_weights(parameters)  # Update model with the latest parameters
             loss, accuracy = model().evaluate(x_val, y_val)
-            return loss, {"accuracy": accuracy}
+
+            predictions = model().predict(x_val)
+            predictions = np.argmax(predictions, axis=1).tolist()
+
+            #y_true = y_val.astype(int).tolist()
+            precision = precision_score(y_val, predictions, average="weighted")
+            recall = recall_score(y_val, predictions, average="weighted")
+            f1 = f1_score(y_val, predictions, average="weighted")
+
+            return loss, {"accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1}
 
         return evaluate
 

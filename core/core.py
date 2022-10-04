@@ -1,5 +1,5 @@
 import flwr as fl
-from patterns.singleton import singleton
+#from patterns.singleton import singleton
 from model.model import model
 from model.evaluation import evaluation
 from configuration.flower_configuration import *
@@ -37,7 +37,7 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
         return weights
 
 
-@singleton
+#@singleton
 class Core:
     def __init__(self,
                  fraction_fit: float = FRACTION_FIT,
