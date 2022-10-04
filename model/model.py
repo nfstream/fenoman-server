@@ -25,7 +25,6 @@ class Model:
 
         y_val = lb.fit_transform(y_val)
         y_train = lb.fit_transform(y_train)
-        #print(len(x_train), len(y_train), len(x_val), len(y_val))
         self.__history = self.__model.fit(
             x_train,
             y_train,

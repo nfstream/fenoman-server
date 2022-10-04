@@ -20,13 +20,14 @@ def start_fl_server():
     core.start_server()
 
 
-@app.route(f'{BASE_URI}/health', methods=["GET", "POST"])
+# TODO megcsinálni rendesen a konténer endpointokat, kell liveness, readiness és healthz
+@app.route(f'{BASE_URI}/health', methods=["GET"])
 def default_route() -> Response:
     return Response("OK", status=200)
 
 
-@app.route(f'{BASE_URI}/get_avilable_models', methods=["GET"])
-def get_avilable_models():
+@app.route(f'{BASE_URI}/get_available_models', methods=["GET"])
+def get_available_models():
     # lista az elérhető modellekről
     models = []
     models.append("classification")

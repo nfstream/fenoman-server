@@ -9,6 +9,7 @@ import numpy as np
 from io import BytesIO
 from configuration.model_configuration import *
 from typing import cast
+from pathlib import Path
 
 
 class SaveModelStrategy(fl.server.strategy.FedAvg):
@@ -48,7 +49,7 @@ class Core:
                  num_rounds: int = NUM_ROUNDS) -> None:
         """
         # TODO
-L
+
         :param fraction_fit:
         :param fraction_eval:
         :param min_fit_clients:
@@ -93,14 +94,16 @@ L
             initial_parameters=initial_parameters,
         )
 
-    def start_server(self):
-        fl.server.start_server(
-            strategy=self.__strategy,
-            server_address="0.0.0.0:8080",
-            config=fl.server.ServerConfig(num_rounds=self.__num_rounds),
-            # certificates=(
-            #    pathlib.Path("configuration/certificates/ca.crt").read_bytes(),
-            #    pathlib.Path("configuration/certificates/server.pem").read_bytes(),
-            #    pathlib.Path("configuration/certificates/server.key").read_bytes()
-            # ),
-        )
+    def start_server(self, secure: bool = SECURE_MODE):
+        server_configuration = {
+            'strategy': self.__strategy,
+            'server_address': f'{FLOWER_SERVER_ADDRESS}:{FLOWER_SERVER_PORT}',
+            'config': fl.server.ServerConfig(num_rounds=self.__num_rounds),
+        }
+        if secure:
+            server_configuration['certificates'] = (
+                Path("configuration/certificates/ca.crt").read_bytes(),
+                Path("configuration/certificates/server.pem").read_bytes(),
+                Path("configuration/certificates/server.key").read_bytes()
+             )
+        fl.server.start_server(**server_configuration)
