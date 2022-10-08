@@ -7,6 +7,7 @@ class Authenticator:
     def check_api_key(api_key: str) -> Tuple[str, bool]:
         """
         This is a simple authentication class that just compares the input api key with the one in the configuration.
+
         :param api_key: input api key which must be compared to the actual one
         :return: str state response, bool of the success
         """

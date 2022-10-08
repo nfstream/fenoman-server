@@ -1,4 +1,3 @@
-#TEST_DATAFRAME = '../../data/comnet14-flows-labeled.csv'
 TEST_DATAFRAME = './data/comnet14-flows-part-0.csv'
 DROP_VARIABLES = ['id', 'application_category_name', 'application_is_guessed', 'application_confidence',
                   'requested_server_name', 'client_fingerprint', 'server_fingerprint', 'user_agent', 'content_type',

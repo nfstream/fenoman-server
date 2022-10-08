@@ -8,17 +8,23 @@ import time
 import numpy as np
 from io import BytesIO
 from configuration.model_configuration import *
-from typing import cast
+from typing import cast, Any
 from pathlib import Path
 
 
 class SaveModelStrategy(fl.server.strategy.FedAvg):
-    def aggregate_fit(self, rnd: int, results, failures, ):
+    def aggregate_fit(self, rnd: int, results, failures,) -> Any:
+        """
+
+
+        :param rnd:
+        :param results:
+        :param failures:
+        :return:
+        """
         weights = super().aggregate_fit(rnd, results, failures)
         if weights is not None:
             # Save weights
-            print(f"Saving round {rnd} weights to nosql database.")
-
             timestamp = time.strftime('%b-%d-%Y_%H%M', time.localtime())
             ndarray = fl.common.parameters_to_ndarrays(weights[0])
 
@@ -48,13 +54,15 @@ class Core:
                  min_available_clients: int = MIN_AVAILABLE_CLIENTS,
                  num_rounds: int = NUM_ROUNDS) -> None:
         """
-        # TODO
 
-        :param fraction_fit:
-        :param fraction_eval:
-        :param min_fit_clients:
-        :param min_eval_clients:
-        :param min_available_clients:
+
+        :param fraction_fit: Fraction of clients used during training. In case min_fit_clients is larger than
+        fraction_fit * available_clients, min_fit_clients will still be sampled. Defaults to 1.0.
+        :param fraction_eval: Fraction of clients used during validation. In case min_evaluate_clients is larger than
+        fraction_evaluate * available_clients, min_evaluate_clients will still be sampled. Defaults to 1.0.
+        :param min_fit_clients: Minimum number of clients used during training. Defaults to 2.
+        :param min_eval_clients: Minimum number of clients used during validation. Defaults to 2.
+        :param min_available_clients: Minimum number of total clients in the system. Defaults to 2.
         """
         self.__fraction_fit = fraction_fit
         self.__fraction_eval = fraction_eval
@@ -73,13 +81,10 @@ class Core:
             limit=1)
 
         if state:
-            print("Previous model parameter state loaded in.")
             bytes_io = BytesIO(records[0]['weights'])
             ndarry_deserialized = np.load(bytes_io, allow_pickle=True)
             initial_parameters = fl.common.ndarrays_to_parameters(cast(fl.common.NDArray, ndarry_deserialized))
         else:
-            print("Previous model paramter is not found, new created.")
-            # TODO ekkor kell csak a model train!
             initial_parameters = fl.common.ndarrays_to_parameters(model().get_weights())
 
         self.__strategy = SaveModelStrategy(
@@ -94,16 +99,43 @@ class Core:
             initial_parameters=initial_parameters,
         )
 
-    def start_server(self, secure: bool = SECURE_MODE):
+    def start_server(self,
+                     flower_server_address: str = FLOWER_SERVER_ADDRESS,
+                     flower_server_port: str = FLOWER_SERVER_PORT,
+                     secure: bool = SECURE_MODE):
+        """
+
+
+        :param flower_server_address:
+        :param flower_server_port:
+        :param secure:
+        :return:
+        """
+        self.__flower_server_address = flower_server_address
+        self.__flower_server_port = flower_server_port
+        self.__secure = secure
+
         server_configuration = {
             'strategy': self.__strategy,
-            'server_address': f'{FLOWER_SERVER_ADDRESS}:{FLOWER_SERVER_PORT}',
+            'server_address': f'{self.__flower_server_address}:{self.__flower_server_port}',
             'config': fl.server.ServerConfig(num_rounds=self.__num_rounds),
         }
-        if secure:
+        if self.__secure:
             server_configuration['certificates'] = (
                 Path("configuration/certificates/ca.crt").read_bytes(),
                 Path("configuration/certificates/server.pem").read_bytes(),
                 Path("configuration/certificates/server.key").read_bytes()
              )
         fl.server.start_server(**server_configuration)
+
+    @staticmethod
+    def get_health_state() -> bool:
+        """
+        Returns the status of the class.
+
+        :return: state of health status
+        """
+        for component in [model, evaluation, nosql_database]:
+            if not component.get_health_state():
+                return False
+        return True

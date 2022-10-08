@@ -113,5 +113,19 @@ class NoSqlDataBase:
         else:
             return 'No element in the DataBase with the given search_field', False
 
+    def get_health_state(self) -> bool:
+        """
+        Returns the status of the class.
+
+        :return: state of health status
+        """
+        try:
+            self.__client.server_info()
+            return True
+
+        # pymongo.errors.ServerSelectionTimeoutError
+        except Exception as exp:
+            return False
+
 
 nosql_database = NoSqlDataBase()
