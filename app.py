@@ -1,13 +1,12 @@
-from json import dumps
-from flask import Flask, Response, send_file, make_response, request
+from flask import Flask, Response, send_file, request
 from core.core import Core
 import timeloop
 from datetime import timedelta
 from configuration.flower_configuration import SERVER_JOB_TIMER_MINUTES
 import logging
 from configuration.application_configuration import *
-from helpers.argumenter import argumenter
-from helpers.authenticator import authenticator
+from configuration.model_configuration import *
+from helpers.applicator import applicator
 
 
 app = Flask(__name__)
@@ -34,38 +33,36 @@ def default_route() -> Response:
 
 @app.route(f'{BASE_URI}/get_available_models', methods=["GET"])
 def get_available_models() -> Response:
-    argumenter_msg, argumenter_state = argumenter.check_arguments(
-        arguments=['Ocp-Apim-Key'],
-        keys=[*[str(x) for x in request.headers.keys()], *request.values.keys()]
+    header_resp, header_state = applicator.headers(
+        ['Ocp-Apim-Key'],
+        [*[str(x) for x in request.headers.keys()], *request.values.keys()]
     )
-    if not argumenter_state:
-        return Response(argumenter_msg, 406)
+    if not header_state:
+        return header_resp
 
-    authentication_msg, authentication_state = authenticator.check_api_key(request.headers['Ocp-Apim-Key'])
-    if not authentication_state:
-        return Response(authentication_msg, 401)
+    auth_resp, auth_state = applicator.authentication(
+        request.headers['Ocp-Apim-Key']
+    )
+    if not auth_state:
+        return auth_resp
 
-    # TODO nem jó igy a beégetett név azonos kell legyen a modell_configból!
-    # lista az elérhető modellekről
-    models = []
-    models.append("classification")
-    return make_response(dumps(models))
+    return Response(MODEL_NAME, 200)
 
 
 @app.route(f'{BASE_URI}/get_model/<model_name>', methods=["GET"])
 def get_latest_model(model_name: str) -> Response:
-    argumenter_msg, argumenter_state = argumenter.check_arguments(
-        arguments=['Ocp-Apim-Key', 'model_name'],
-        keys=[*[str(x) for x in request.headers.keys()], *request.values.keys()]
+    header_resp, header_state = applicator.headers(
+        ['Ocp-Apim-Key', 'model_name'],
+        [*[str(x) for x in request.headers.keys()], *request.values.keys()]
     )
-    if not argumenter_state:
-        return Response(argumenter_msg, 406)
+    if not header_state:
+        return header_resp
 
-    authentication_msg, authentication_state = authenticator.check_api_key(request.headers['Ocp-Apim-Key'])
-    if not authentication_state:
-        return Response(authentication_msg, 401)
+    auth_resp, auth_state = applicator.authentication(
+        request.headers['Ocp-Apim-Key']
+    )
+    if not auth_state:
+        return auth_resp
 
-    # TODO ez hogy kerül ez a model ide ? meg ez a staticus beégetett model név geci szar
-    if model_name == "classification":
-        return send_file(path_or_file="model/temp/classification.h5")
-    # a legújabb model leküldése a kliens számára
+    if model_name == MODEL_NAME:
+        return send_file(path_or_file=f"model/temp/{MODEL_NAME}.h5")

@@ -1,7 +1,6 @@
 import tensorflow as tf
 from sklearn.preprocessing import LabelEncoder
 from configuration.model_configuration import *
-
 from patterns.singleton import singleton
 from typing import Any
 from data.data import data
@@ -18,7 +17,7 @@ class Model:
         """
         ### Internal model definition block. ###
         '''
-        TODO ezt a jövőben tovább kell fejleszteni, hogy akármilyen modelt be lehessen nyomni ne csak igy!
+        TODO this should be further developed in the future, so that any model can be squeezed in, not just this one!
         '''
         self.__model = tf.keras.Sequential()
         self.__model.add(tf.keras.layers.Dense(13, input_dim=13, activation='relu'))
