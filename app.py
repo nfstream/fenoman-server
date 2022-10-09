@@ -69,4 +69,3 @@ def get_latest_model(model_name: str) -> Response:
     if model_name == "classification":
         return send_file(path_or_file="model/temp/classification.h5")
     # a legújabb model leküldése a kliens számára
-    pass

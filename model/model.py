@@ -11,21 +11,21 @@ from data.data import data
 class Model:
     def __init__(self) -> None:
         """
-
+        The model class is a wrapper class that contains a Keras-based instance. Currently, the solution only supports
+        the direct implementation of the model, which is defined in the next block.
 
         :return: None
         """
-
-        # TODO majd ezt meg kell csinálni, hogy ha most lett compilolva akkor 1x tanítani kell, ha már meglévőt szeretnénk
-        #   haszánlni akkor az nem szükséges az adatbázisból majd ezt is le kell tölteni!
+        ### Internal model definition block. ###
+        '''
+        TODO ezt a jövőben tovább kell fejleszteni, hogy akármilyen modelt be lehessen nyomni ne csak igy!
+        '''
         self.__model = tf.keras.Sequential()
         self.__model.add(tf.keras.layers.Dense(13, input_dim=13, activation='relu'))
         self.__model.add(tf.keras.layers.Dense(200, activation='relu'))
         self.__model.add(tf.keras.layers.Dense(171, activation='softmax'))
         self.__model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
-        # TODO ezt hogy lehet univerzálissá tenni?
-
-
+        ### Internal model definition block. ###
 
         x_train, y_train, x_val, y_val = data.load_data()
 
@@ -43,20 +43,20 @@ class Model:
             # at the end of each epoch
             validation_data=(x_val, y_val),
         )
-        self.save_model()
+        self.__save_model()
 
     def __call__(self) -> Any:
         """
-        This __call__ method used to call directly the underlaying keras model. This allows the developer to use the
+        This __call__ method used to call directly the underlying keras model. This allows the developer to use the
         built-in keras functions if the Model object is called like model().
 
         :return: Keras Model
         """
         return self.__model
 
-    def save_model(self) -> None:
+    def __save_model(self) -> None:
         """
-
+        Function used to save the model to a local folder.
 
         :return: None
         """
