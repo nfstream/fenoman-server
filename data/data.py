@@ -15,7 +15,15 @@ class Data:
 
         :param df: dataframe input from NFStream
         """
-        self.__data = pd.read_csv(df)
+        if not os.path.exists(df):
+            capturer = Capturer()
+            time.sleep(CAPTURE_TIMER_SECONDS)
+            generated_pandas = capturer.generate_export()
+            del capturer
+
+            self.__data = generated_pandas
+        else:
+            self.__data = pd.read_csv(df)
 
         nfstream_data = self.__data
 
