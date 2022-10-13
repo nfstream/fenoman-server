@@ -15,12 +15,15 @@ from pathlib import Path
 class SaveModelStrategy(fl.server.strategy.FedAvg):
     def aggregate_fit(self, rnd: int, results, failures,) -> Any:
         """
+        This custom strategy saves out the model into the mongo database in each round.
 
-
-        :param rnd:
-        :param results:
-        :param failures:
-        :return:
+        :param rnd: The current round of federated learning.
+        :param results: Successful updates from the previously selected and configured clients. Each pair of
+        (ClientProxy, FitRes constitutes a successful update from one of the previously selected clients. Not that not
+        all previously selected clients are necessarily included in this list: a client might drop out and not submit a
+        result. For each client that did not submit an update, there should be an Exception in failures.
+        :param failures: Exceptions that occurred while the server was waiting for client updates.
+        :return: The aggregated evaluation result. Aggregation typically uses some variant of a weighted average.
         """
         weights = super().aggregate_fit(rnd, results, failures)
         if weights is not None:
@@ -54,7 +57,8 @@ class Core:
                  min_available_clients: int = MIN_AVAILABLE_CLIENTS,
                  num_rounds: int = NUM_ROUNDS) -> None:
         """
-
+        The Core class is an internal instance of the FeNOMan system. This is where the server and configurations
+        implemented by Flower are started.
 
         :param fraction_fit: Fraction of clients used during training. In case min_fit_clients is larger than
         fraction_fit * available_clients, min_fit_clients will still be sampled. Defaults to 1.0.
@@ -102,14 +106,15 @@ class Core:
     def start_server(self,
                      flower_server_address: str = FLOWER_SERVER_ADDRESS,
                      flower_server_port: str = FLOWER_SERVER_PORT,
-                     secure: bool = SECURE_MODE):
+                     secure: bool = SECURE_MODE) -> None:
         """
+        This method starts the Flower server inside the Fenoman server, where Fenoman clients can connect using the
+        flower directory.
 
-
-        :param flower_server_address:
-        :param flower_server_port:
-        :param secure:
-        :return:
+        :param flower_server_address: The IPv4 or IPv6 address of the server.
+        :param flower_server_port: Servers port where to listen to the Flower clients.
+        :param secure: This enables the secure SSL connection between client and server.
+        :return: None
         """
         self.__flower_server_address = flower_server_address
         self.__flower_server_port = flower_server_port
