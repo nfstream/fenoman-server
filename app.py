@@ -52,7 +52,7 @@ def get_available_models() -> Response:
 @app.route(f'{BASE_URI}/get_model/<model_name>', methods=["GET"])
 def get_latest_model(model_name: str) -> Response:
     header_resp, header_state = applicator.headers(
-        ['Ocp-Apim-Key', 'model_name'],
+        ['Ocp-Apim-Key'],
         [*[str(x) for x in request.headers.keys()], *request.values.keys()]
     )
     if not header_state:
