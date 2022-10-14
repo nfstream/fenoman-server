@@ -41,7 +41,8 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
                 insert_data_dict={
                     "model_name": MODEL_NAME,
                     "timestamp": timestamp,
-                    "weights": bytes_io.getvalue()
+                    "weights": bytes_io.getvalue(),
+                    "model": model() # TODO tesztelni kell hogy a modelt le tudja e igy menteni
                 }
             )
         return weights

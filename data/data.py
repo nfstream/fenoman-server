@@ -6,8 +6,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_selection import SelectKBest, f_classif
 from typing import Tuple, Any
 import os
-import time
-from configuration.nfstream_configuration import *
 from .capturer import Capturer
 
 
@@ -21,9 +19,7 @@ class Data:
         """
         if not os.path.exists(df):
             capturer = Capturer()
-            time.sleep(CAPTURE_TIMER_SECONDS)
             generated_pandas = capturer.generate_export()
-            del capturer
 
             self.__data = generated_pandas
         else:
