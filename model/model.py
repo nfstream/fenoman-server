@@ -4,6 +4,8 @@ from configuration.model_configuration import *
 from patterns.singleton import singleton
 from typing import Any
 from data.data import data
+from database.nosql_database import nosql_database
+
 
 
 @singleton
@@ -15,33 +17,47 @@ class Model:
 
         :return: None
         """
-        ### Internal model definition block. ###
-        '''
-        TODO this should be further developed in the future, so that any model can be squeezed in, not just this one!
-        '''
-        self.__model = tf.keras.Sequential()
-        self.__model.add(tf.keras.layers.Dense(13, input_dim=13, activation='relu'))
-        self.__model.add(tf.keras.layers.Dense(200, activation='relu'))
-        self.__model.add(tf.keras.layers.Dense(171, activation='softmax'))
-        self.__model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
-        ### Internal model definition block. ###
+        # Checking if model exists in database
+        # TODO tesztelni kell ezt az eljárást hogy a modellt megfelelően szedi e le
+        records, state = nosql_database.last_n_element(
+            search_field={
+                'model_name': MODEL_NAME
+            },
+            key='timestamp',
+            limit=1)
 
-        x_train, y_train, x_val, y_val = data.load_data()
+        if state:
+            print("loading model in Model class from mongodb")
+            self.__model = records[0]['model']
+        else:
+            ### Internal model definition block. ###
+            '''
+            TODO this should be further developed in the future, so that any model can be squeezed in, not just this one!
+            '''
+            self.__model = tf.keras.Sequential()
+            self.__model.add(tf.keras.layers.Dense(13, input_dim=13, activation='relu'))
+            self.__model.add(tf.keras.layers.Dense(200, activation='relu'))
+            self.__model.add(tf.keras.layers.Dense(171, activation='softmax'))
+            self.__model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
+            ### Internal model definition block. ###
 
-        lb = LabelEncoder()
+            x_train, y_train, x_val, y_val = data.load_data()
 
-        y_val = lb.fit_transform(y_val)
-        y_train = lb.fit_transform(y_train)
-        self.__history = self.__model.fit(
-            x_train,
-            y_train,
-            batch_size=MODEL_BATCH_SIZE,
-            epochs=MODE_EPOCHS,
-            # We pass some validation for
-            # monitoring validation loss and metrics
-            # at the end of each epoch
-            validation_data=(x_val, y_val),
-        )
+            lb = LabelEncoder()
+
+            y_val = lb.fit_transform(y_val)
+            y_train = lb.fit_transform(y_train)
+            self.__history = self.__model.fit(
+                x_train,
+                y_train,
+                batch_size=MODEL_BATCH_SIZE,
+                epochs=MODE_EPOCHS,
+                # We pass some validation for
+                # monitoring validation loss and metrics
+                # at the end of each epoch
+                validation_data=(x_val, y_val),
+            )
+
         self.__save_model()
 
     def __call__(self) -> Any:

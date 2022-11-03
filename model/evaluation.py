@@ -6,6 +6,12 @@ from patterns.singleton import singleton
 from typing import Optional, Tuple, Dict
 from data.data import data
 from configuration.evaluation_config import *
+import numpy as np
+from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
+import matplotlib.pyplot as plt
+from configuration.model_configuration import *
+import time
 
 
 @singleton
@@ -39,7 +45,15 @@ class Evaluation:
             """
             model().set_weights(parameters)  # Update model with the latest parameters
             loss, accuracy = model().evaluate(x_val, y_val)
-            return loss, {"accuracy": accuracy}
+
+            predictions = model().predict(x_val)
+            predictions = np.argmax(predictions, axis=1).tolist()
+
+            precision = precision_score(y_val, predictions, average="weighted")
+            recall = recall_score(y_val, predictions, average="weighted")
+            f1 = f1_score(y_val, predictions, average="weighted")
+
+            return loss, {"accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1}
 
         return evaluate
 
@@ -74,6 +88,22 @@ class Evaluation:
         val_steps = EVALUATION_VALIDATION_STEP_MINIMUM if \
             rnd < EVALUATION_VALIDATION_STEP_ROUND_THRESHOLD else EVALUATION_VALIDATION_STEP_MAXIMUM
         return {"val_steps": val_steps}
+
+    @staticmethod
+    def generate_confusion_matrix(model: Model, labels: list = CONFUSION_MATRIX_LABELS):
+        x_train, y_train, x_val, y_val = data.load_data()
+        predictions = model().predict(x_val)
+        predictions = np.argmax(predictions, axis=1).tolist()
+
+        y_true = y_val.astype(int).tolist()
+        matrix = confusion_matrix(y_true, predictions, normalize="true")
+
+        disp = ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=labels)
+        disp.plot(cmap=plt.cm.Blues)
+
+        timestamp = time.strftime('%b-%d-%Y_%H%M', time.localtime())
+
+        plt.savefig(f'model/temp/{MODEL_NAME}_confusion_matrix_{timestamp}.png')
 
     @staticmethod
     def get_health_state() -> bool:
