@@ -10,6 +10,7 @@ from io import BytesIO
 from configuration.model_configuration import *
 from typing import cast, Any
 from pathlib import Path
+import pickle
 
 
 class SaveModelStrategy(fl.server.strategy.FedAvg):
@@ -42,7 +43,7 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
                     "model_name": MODEL_NAME,
                     "timestamp": timestamp,
                     "weights": bytes_io.getvalue(),
-                    "model": model() # TODO tesztelni kell hogy a modelt le tudja e igy menteni
+                    "model": pickle.dumps(model()) # TODO tesztelni kell hogy a modelt le tudja e igy menteni
                 }
             )
         return weights

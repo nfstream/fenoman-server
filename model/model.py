@@ -5,7 +5,7 @@ from patterns.singleton import singleton
 from typing import Any
 from data.data import data
 from database.nosql_database import nosql_database
-
+import pickle
 
 
 @singleton
@@ -28,7 +28,7 @@ class Model:
 
         if state:
             print("loading model in Model class from mongodb")
-            self.__model = records[0]['model']
+            self.__model = pickle.loads(records[0]['model'])
         else:
             ### Internal model definition block. ###
             '''
