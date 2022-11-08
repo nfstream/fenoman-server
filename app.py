@@ -7,6 +7,8 @@ import logging
 from configuration.application_configuration import *
 from configuration.model_configuration import *
 from helpers.applicator import applicator
+from database.nosql_database import nosql_database
+import pickle
 
 
 app = Flask(__name__)
@@ -64,5 +66,14 @@ def get_latest_model(model_name: str) -> Response:
     if not auth_state:
         return auth_resp
 
-    if model_name == MODEL_NAME:
-        return send_file(path_or_file=f"model/temp/{MODEL_NAME}.h5")
+    records, state = nosql_database.last_n_element(
+        search_field={
+            'model_name': model_name
+        },
+        key='timestamp',
+        limit=1)
+    
+    if state:
+        return send_file(pickle.loads(records[0]['model']))
+    else:
+        return Response('Given model name is not available on the server.', 404)

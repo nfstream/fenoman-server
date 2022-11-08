@@ -43,7 +43,7 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
                     "model_name": MODEL_NAME,
                     "timestamp": timestamp,
                     "weights": bytes_io.getvalue(),
-                    "model": pickle.dumps(model()) # TODO tesztelni kell hogy a modelt le tudja e igy menteni
+                    "model": pickle.dumps(model())
                 }
             )
         return weights
