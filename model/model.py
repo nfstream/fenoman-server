@@ -58,7 +58,7 @@ class Model:
                 validation_data=(x_val, y_val),
             )
 
-        self.__save_model()
+        self.save_model()
 
     def __call__(self) -> Any:
         """
@@ -69,13 +69,16 @@ class Model:
         """
         return self.__model
 
-    def __save_model(self) -> None:
+    def save_model(self) -> None:
         """
         Function used to save the model to a local folder.
 
         :return: None
         """
-        self.__model.save(f'model/temp/{MODEL_NAME}.h5')
+        self.__model.save(
+            f'model/temp/{MODEL_NAME}.h5',
+            overwrite=True
+        )
 
     @staticmethod
     def get_health_state() -> bool:

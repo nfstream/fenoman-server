@@ -9,6 +9,7 @@ from configuration.model_configuration import *
 from helpers.applicator import applicator
 from database.nosql_database import nosql_database
 import pickle
+from model.model import model
 
 
 app = Flask(__name__)
@@ -76,4 +77,9 @@ def get_latest_model(model_name: str) -> Response:
     if state:
         return send_file(pickle.loads(records[0]['model']))
     else:
+        # On the first run there will be no record associated in the database.
+        if model_name == MODEL_NAME:
+            model.save_model()
+            return send_file(path_or_file=f"model/temp/{MODEL_NAME}.h5")
+
         return Response('Given model name is not available on the server.', 404)
