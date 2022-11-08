@@ -18,7 +18,6 @@ class Model:
         :return: None
         """
         # Checking if model exists in database
-        # TODO tesztelni kell ezt az eljárást hogy a modellt megfelelően szedi e le
         records, state = nosql_database.last_n_element(
             search_field={
                 'model_name': MODEL_NAME
@@ -37,7 +36,7 @@ class Model:
             self.__model = tf.keras.Sequential()
             self.__model.add(tf.keras.layers.Dense(13, input_dim=13, activation='relu'))
             self.__model.add(tf.keras.layers.Dense(200, activation='relu'))
-            self.__model.add(tf.keras.layers.Dense(171, activation='softmax'))
+            self.__model.add(tf.keras.layers.Dense(500, activation='softmax'))
             self.__model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
             ### Internal model definition block. ###
 
