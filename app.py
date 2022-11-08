@@ -72,7 +72,7 @@ def get_latest_model(model_name: str) -> Response:
         },
         key='timestamp',
         limit=1)
-    
+
     if state:
         return send_file(pickle.loads(records[0]['model']))
     else:

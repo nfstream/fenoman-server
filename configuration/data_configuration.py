@@ -1,4 +1,4 @@
-TEST_DATAFRAME = './data/comnet14-flows-part-0.csv'
+TEST_DATAFRAME = '/home/vke/10GB-3.pcap'
 DROP_VARIABLES = ['id', 'application_category_name', 'application_is_guessed', 'application_confidence',
                   'requested_server_name', 'client_fingerprint', 'server_fingerprint', 'user_agent', 'content_type',
                   'src_ip', 'src_mac', 'dst_ip', 'dst_mac', 'src_oui', 'dst_oui', 'ip_version', 'vlan_id', 'tunnel_id',
