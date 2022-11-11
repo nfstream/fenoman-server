@@ -11,8 +11,8 @@ class Applicator:
         During http calls, this class unifies the error codes in case a parameter or key is missing.
 
         :param arguments: list of arguments that are required in the given call
-        :param keys: acutal keys that appears in the call
-        :return:
+        :param keys: actual keys that appears in the call
+        :return: tuple of success as a bool and a Response object
         """
         argumenter_msg, argumenter_state = argumenter.check_arguments(
             arguments=arguments,
@@ -28,7 +28,7 @@ class Applicator:
         This function uniformly handles error messages for the existence of the api key.
 
         :param api_key: api key provided in the http call
-        :return:
+        :return: tuple of success as a bool and a Response object
         """
         authentication_msg, authentication_state = authenticator.check_api_key(api_key)
         if not authentication_state:

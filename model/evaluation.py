@@ -5,7 +5,7 @@ import flwr as fl
 from patterns.singleton import singleton
 from typing import Optional, Tuple, Dict
 from data.data import data
-from configuration.evaluation_config import *
+from configuration.evaluation_configuration import *
 import numpy as np
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
@@ -75,22 +75,30 @@ class Evaluation:
         return config
 
     @staticmethod
-    def evaluate_config(rnd: int):
+    def evaluate_config(rnd: int) -> dict:
         """
         Return evaluation configuration dict for each round.
         Perform five local evaluation steps on each client (i.e., use five
         batches) during rounds one to three, then increase to ten local
         evaluation steps.
 
-        :param rnd:
-        :return:
+        :param rnd: evaluation step counter
+        :return: dictionary of validation steps
         """
         val_steps = EVALUATION_VALIDATION_STEP_MINIMUM if \
             rnd < EVALUATION_VALIDATION_STEP_ROUND_THRESHOLD else EVALUATION_VALIDATION_STEP_MAXIMUM
         return {"val_steps": val_steps}
 
     @staticmethod
-    def generate_confusion_matrix(model: Model, labels: list = CONFUSION_MATRIX_LABELS):
+    def generate_confusion_matrix(model: Model, labels: list = CONFUSION_MATRIX_LABELS) -> None:
+        """
+        This static function generates the configuration matrix for the model specified in the parameter for the
+        specified matrix columns and then saves them under the "model/temp/{MODEL_NAME}..." folder.
+
+        :param model: Model object
+        :param labels: labels that should be used in the matrix
+        :return: None
+        """
         x_train, y_train, x_val, y_val = data.load_data()
         predictions = model().predict(x_val)
         predictions = np.argmax(predictions, axis=1).tolist()

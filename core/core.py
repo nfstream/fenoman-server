@@ -69,6 +69,8 @@ class Core:
         :param min_fit_clients: Minimum number of clients used during training. Defaults to 2.
         :param min_eval_clients: Minimum number of clients used during validation. Defaults to 2.
         :param min_available_clients: Minimum number of total clients in the system. Defaults to 2.
+        :param num_rounds:
+        :return: None
         """
         self.__fraction_fit = fraction_fit
         self.__fraction_eval = fraction_eval

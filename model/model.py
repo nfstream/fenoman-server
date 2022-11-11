@@ -29,7 +29,9 @@ class Model:
             print("loading model in Model class from mongodb")
             self.__model = pickle.loads(records[0]['model'])
         else:
+            ########################################
             ### Internal model definition block. ###
+            ########################################
             '''
             TODO this should be further developed in the future, so that any model can be squeezed in, not just this one!
             '''
@@ -38,7 +40,9 @@ class Model:
             self.__model.add(tf.keras.layers.Dense(200, activation='relu'))
             self.__model.add(tf.keras.layers.Dense(500, activation='softmax'))
             self.__model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
+            ########################################
             ### Internal model definition block. ###
+            ########################################
 
             x_train, y_train, x_val, y_val = data.load_data()
 

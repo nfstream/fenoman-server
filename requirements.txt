@@ -1,7 +1,7 @@
 typing~=3.7.4.3
 flask~=2.1.2
 pymysql
-flwr==1.0.0
+flwr==1.1.0
 tensorflow~=2.9.1
 pymongo~=4.1.1
 timeloop~=1.0.2

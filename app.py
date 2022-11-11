@@ -11,14 +11,27 @@ from model.model import model
 
 
 app = Flask(__name__)
-core = Core()
 tl = timeloop.Timeloop()
+core = None
 
 
 @tl.job(interval=timedelta(minutes=SERVER_JOB_TIMER_MINUTES))
-def start_fl_server():
+def start_fl_server() -> None:
+    """
+    This is an automatic function which is important to incrementally start the flower server and do the teaching. You
+    can control the increment based on the timer. It is important to note that synchronous startup of the teaching
+    server cannot run two at the same time, so the system schedules this automatically. In case of a backlog, the next
+    one will start automatically after the termination of a flower server.
+
+    :return: None
+    """
+    global core
+
+    core = Core()
     logging.info("Starting Flower server.")
     core.start_server()
+
+    del core
 
 
 tl.start(block=False)
@@ -26,6 +39,14 @@ tl.start(block=False)
 
 @app.route(f'{BASE_URI}/healthz', methods=["GET"])
 def default_route() -> Response:
+    """
+    This is an endpoint to support docker containerization health status.
+
+    :return: Response object of the success state
+    """
+    if core is None:
+        return Response("Init in progress", status=100)
+
     if core.get_health_state():
         return Response("OK", status=200)
     else:
@@ -34,6 +55,11 @@ def default_route() -> Response:
 
 @app.route(f'{BASE_URI}/get_available_models', methods=["GET"])
 def get_available_models() -> Response:
+    """
+    The databases available on the server can be queried using this procedure.
+
+    :return: Response object with data.
+    """
     header_resp, header_state = applicator.headers(
         ['Ocp-Apim-Key'],
         [*[str(x) for x in request.headers.keys()], *request.values.keys()]
@@ -52,6 +78,12 @@ def get_available_models() -> Response:
 
 @app.route(f'{BASE_URI}/get_model/<model_name>', methods=["GET"])
 def get_latest_model(model_name: str) -> Response:
+    """
+    The latest version of the named model can be downloaded from the server using this endpoint.
+
+    :param model_name: model name that must be downloaded
+    :return: Response object with model data
+    """
     header_resp, header_state = applicator.headers(
         ['Ocp-Apim-Key'],
         [*[str(x) for x in request.headers.keys()], *request.values.keys()]

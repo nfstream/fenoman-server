@@ -17,7 +17,7 @@ def singleton(class_: Any) -> Any:
         :rtype Any
         :param args: non-keyword arguments
         :param kwargs: keyword arguments
-        :return:
+        :return: Any class instances
         """
         if class_ not in __instances:
             __instances[class_] = class_(*args, **kwargs)
