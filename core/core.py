@@ -11,6 +11,7 @@ from configuration.model_configuration import *
 from typing import cast, Any
 from pathlib import Path
 import pickle
+import logging
 
 
 class SaveModelStrategy(fl.server.strategy.FedAvg):
@@ -148,3 +149,9 @@ class Core:
             if not component.get_health_state():
                 return False
         return True
+
+
+if __name__ == '__main__':
+    core = Core()
+    logging.info("Starting Flower server.")
+    core.start_server()
