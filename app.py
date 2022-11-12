@@ -2,7 +2,6 @@ from flask import Flask, Response, send_file, request
 import timeloop
 from datetime import timedelta
 from configuration.flower_configuration import SERVER_JOB_TIMER_MINUTES
-import logging
 from configuration.application_configuration import *
 from configuration.model_configuration import *
 from helpers.applicator import applicator
@@ -13,8 +12,6 @@ import subprocess
 app = Flask(__name__)
 tl = timeloop.Timeloop()
 core = None
-POLL = 1
-SUBPROCESS = None
 
 
 @tl.job(interval=timedelta(minutes=SERVER_JOB_TIMER_MINUTES))
@@ -27,24 +24,7 @@ def start_fl_server() -> None:
 
     :return: None
     """
-    global POLL
-    global SUBPROCESS
-
-    def __run_process():
-        global POLL
-        global SUBPROCESS
-
-        p = subprocess.Popen(['python3', '/core/core.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        POLL = p.poll()
-        SUBPROCESS = p
-
-    if POLL == 1:
-        __run_process()
-
-    POLL = SUBPROCESS.poll()
-
-    if POLL is not None:
-        __run_process()
+    subprocess.call('python3 ./core/core.py', shell=True)
 
 
 tl.start(block=False)

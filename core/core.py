@@ -1,3 +1,11 @@
+import sys
+import os
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+
 import flwr as fl
 from patterns.singleton import singleton
 from model.model import model
