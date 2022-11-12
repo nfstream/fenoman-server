@@ -22,6 +22,12 @@ sudo su
 pip3 install -r requirements.txt
 ```
 
+For the entry point of the core class, the permission must be changed in the tree to run with the following command:
+
+```
+chmod u+x /core/core.py
+```
+
 ### Prerequisite
 * Linux based operating system that supports NFStream
 * MongoDB Server

@@ -1,13 +1,12 @@
 from flask import Flask, Response, send_file, request
-from core.core import Core
 import timeloop
 from datetime import timedelta
 from configuration.flower_configuration import SERVER_JOB_TIMER_MINUTES
-import logging
 from configuration.application_configuration import *
 from configuration.model_configuration import *
 from helpers.applicator import applicator
 from model.model import model
+import subprocess
 
 
 app = Flask(__name__)
@@ -25,13 +24,7 @@ def start_fl_server() -> None:
 
     :return: None
     """
-    global core
-
-    core = Core()
-    logging.info("Starting Flower server.")
-    core.start_server()
-
-    del core
+    subprocess.call('python3 ./core/core.py', shell=True)
 
 
 tl.start(block=False)

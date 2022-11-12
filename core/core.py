@@ -1,3 +1,11 @@
+import sys
+import os
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+
 import flwr as fl
 from patterns.singleton import singleton
 from model.model import model
@@ -11,6 +19,7 @@ from configuration.model_configuration import *
 from typing import cast, Any
 from pathlib import Path
 import pickle
+import logging
 
 
 class SaveModelStrategy(fl.server.strategy.FedAvg):
@@ -148,3 +157,9 @@ class Core:
             if not component.get_health_state():
                 return False
         return True
+
+
+if __name__ == '__main__':
+    core = Core()
+    logging.info("Starting Flower server.")
+    core.start_server()
