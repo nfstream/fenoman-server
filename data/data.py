@@ -16,7 +16,7 @@ class Data:
         This Data class is implemented directly for NFStream use-cases.
 
         :param df: In the case of an input file which may have a .csv or .pcap extension, the path.
-        :param n_features: The number of identifiable featurs in the data set that are used in the model training.
+        :param n_features: The number of identifiable features in the data set that are used in the model training.
         :return: None
         """
         if not os.path.exists(df):
@@ -33,7 +33,8 @@ class Data:
                 )
                 generated_pandas = capturer.generate_export()
                 self.__data = generated_pandas
-
+            else:
+                raise Exception('Unsupported Data file!')
         nfstream_data = self.__data
 
         self.__data_reduced = self.__data.drop(DROP_VARIABLES, axis='columns')

@@ -13,6 +13,7 @@ FeNOMan is a federated learning-driven traffic flow classification framework tha
 
 ## Main Features
 
+The server is able to advertise different models (due to the flower, the current version of the solution can only advertise one model at a time) which clients can download via HTTP/HTTPS (and API key authentication can be set up for the solution). Once the models are downloaded from the server, clients can use them for prediction or, if the server is advertised, they can teach and modify the weights of the global model. All the model information is stored in a NoSQL database and the solution can advertise the models by feeding from it. Each model state is time-stamped in the database and the latest one is always advertised unless the user requests to revert to an older one.
 
 ## Installation
 Because of network card monitoring, the user must have super-user privileges to start the server. For this reason, it is necessary to install the required libraries by logging in as a super-user. Which can be done as follows:
