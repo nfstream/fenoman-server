@@ -7,13 +7,20 @@ from patterns.singleton import singleton
 
 @singleton
 class NoSqlDataBase:
-    def __init__(self, hostname: str = DATABASE_HOST, port: int = DATABASE_PORT,
-                 database: str = DATABASE, collection: str = COLLECTION) -> None:
+    def __init__(self,
+                 hostname: str = DATABASE_HOST,
+                 port: int = DATABASE_PORT,
+                 database: str = DATABASE,
+                 collection: str = COLLECTION) -> None:
         """
         Initialization function, creates the database if it does not exist, and the collection.
+
         :rtype None
+        :param hostname: host uri of the database localhost or 0.0.0.0 if the database is on the same host as the server
+        :param port: database port
         :param database: database name
         :param collection: collection name
+        :return: None
         """
         self.__client = pymongo.MongoClient(host=hostname, port=port)
         self.__database_name = database
@@ -32,8 +39,9 @@ class NoSqlDataBase:
     def insert_element(self, search_data_dict: dict, insert_data_dict: dict) -> Tuple[str, bool]:
         """
         Inserts the passed dictionary elements into the given database.
-        :param insert_data_dict:
-        :param search_data_dict:
+
+        :param insert_data_dict: data to be inserted into the database
+        :param search_data_dict: field values to look for used to check if the element already exists
         :return: state
         """
         if search_data_dict == {'special_case': 'insert_anyway'}:
@@ -49,8 +57,9 @@ class NoSqlDataBase:
 
     def get_element(self, search_fields: dict) -> Tuple[Union[list, str], bool]:
         """
-        Dicitonary should be passed as a search fieldset, then these will be searched and returned in the given
+        Dictionary should be passed as a search fieldset, then these will be searched and returned to the given
         collection.
+
         :param search_fields: field values to look for
         :return: records found
         """
@@ -62,37 +71,42 @@ class NoSqlDataBase:
         else:
             return 'Element does not exists in the DataBase!', False
 
-    def delete_element(self, search_fields: dict) -> Tuple[Union[int, str], bool]:
+    def delete_element(self, search_fields: dict) -> NotImplemented:
+            #Tuple[Union[int, str], bool]:
         """
         Delete items passed in the Dictionary from the database.
+
         :param search_fields: search value of records to be deleted
         :return: number of records deleted
         """
         return NotImplemented
-        resp = self.__collection.delete_many(search_fields)
-        if resp.deleted_count > 0:
-            return resp.deleted_count, True
-        else:
-            return 'Element does not exists in the DataBase!', False
+        #resp = self.__collection.delete_many(search_fields)
+        #if resp.deleted_count > 0:
+        #    return resp.deleted_count, True
+        #else:
+        #    return 'Element does not exists in the DataBase!', False
 
-    def drop_collection(self) -> None:
+    def drop_collection(self) -> NotImplemented:
         """
         Deletes the collection with all its contents.
-        :return: none
-        """
-        return NotImplemented
-        self.__collection.drop()
 
-    def update_element(self, search_fields: dict, update_data: dict) -> UpdateResult:
-        """
-        # TODO
-        :param search_fields:
-        :param update_data:
-        :return:
+        :return: NotImplemented
         """
         return NotImplemented
-        resp = self.__collection.update_many(search_fields, {"$set": update_data})
-        return resp
+        #self.__collection.drop()
+
+    def update_element(self, search_fields: dict, update_data: dict) -> NotImplemented:
+        """
+        Currently not supported due to the Mongodb version update. The procedure does not use the update of existing
+        records so this procedure cannot be used.
+
+        :param search_fields: search value of records to be updated
+        :param update_data: the new data to overwrite the current data stored in the database
+        :return: NotImplemented
+        """
+        return NotImplemented
+        #resp = self.__collection.update_many(search_fields, {"$set": update_data})
+        #return resp
 
     def last_n_element(self, search_field: dict, key: str, limit: int) -> Tuple[Union[list, str], bool]:
         """
@@ -112,6 +126,20 @@ class NoSqlDataBase:
             return resp_data, True
         else:
             return 'No element in the DataBase with the given search_field', False
+
+    def get_health_state(self) -> bool:
+        """
+        Returns the status of the class.
+
+        :return: state of health status
+        """
+        try:
+            self.__client.server_info()
+            return True
+
+        # pymongo.errors.ServerSelectionTimeoutError
+        except Exception as exp:
+            return False
 
 
 nosql_database = NoSqlDataBase()
