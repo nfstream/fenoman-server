@@ -91,7 +91,7 @@ python3 wsgi.py
 
 If you have your own model, you need to do the code-level modification in the model definition block in the model/model.py class. If there is an existing model, it can be loaded into the database, or it can be directly loaded instead of code-level implementation.
 For a simple dense layer model, this should look like the following:
-```
+```python
 32 ########################################
 33 ### Internal model definition block. ###
 34 ########################################
