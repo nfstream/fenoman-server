@@ -109,6 +109,7 @@ For a simple dense layer model, this should look like the following:
 * Adrian Pekar
 * Zied Aouini
 * Laszlo Arpad Makara
+* Gergely Biczok
 * Balint Bicski
 * Marcell Szoby
 * Mate Simko
