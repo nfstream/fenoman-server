@@ -6,9 +6,10 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 
+import argparse
 import flwr as fl
 from patterns.singleton import singleton
-from model.model import model
+from model.model import models
 from model.evaluation import evaluation
 from configuration.flower_configuration import *
 from database.nosql_database import nosql_database
@@ -23,7 +24,7 @@ import logging
 
 
 class SaveModelStrategy(fl.server.strategy.FedAvg):
-    def aggregate_fit(self, rnd: int, results, failures,) -> Any:
+    def aggregate_fit(self, rnd: int, results, failures, model_name: str) -> Any:
         """
         This custom strategy saves out the model into the mongo database in each round.
 
@@ -52,7 +53,7 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
                     "model_name": MODEL_NAME,
                     "timestamp": timestamp,
                     "weights": bytes_io.getvalue(),
-                    "model": pickle.dumps(model())
+                    "model": pickle.dumps(models[model_name]())
                 }
             )
         return weights
@@ -66,7 +67,8 @@ class Core:
                  min_fit_clients: int = MIN_FIT_CLIENTS,
                  min_eval_clients: int = MIN_EVAL_CLIENTS,
                  min_available_clients: int = MIN_AVAILABLE_CLIENTS,
-                 num_rounds: int = NUM_ROUNDS) -> None:
+                 num_rounds: int = NUM_ROUNDS,
+                 model_name: str = None) -> None:
         """
         The Core class is an internal instance of the FeNOMan system. This is where the server and configurations
         implemented by Flower are started.
@@ -87,12 +89,13 @@ class Core:
         self.__min_eval_clients = min_eval_clients
         self.__min_available_clients = min_available_clients
         self.__num_rounds = num_rounds
+        self.__model_name = model_name
 
         # We must load in the last model that was used in a given model_name configuration scenario
         initial_parameters = None
         records, state = nosql_database.last_n_element(
             search_field={
-                'model_name': MODEL_NAME
+                'model_name': self.__model_name
             },
             key='timestamp',
             limit=1)
@@ -102,7 +105,7 @@ class Core:
             ndarry_deserialized = np.load(bytes_io, allow_pickle=True)
             initial_parameters = fl.common.ndarrays_to_parameters(cast(fl.common.NDArray, ndarry_deserialized))
         else:
-            initial_parameters = fl.common.ndarrays_to_parameters(model().get_weights())
+            initial_parameters = fl.common.ndarrays_to_parameters(models[self.__model_name]().get_weights())
 
         self.__strategy = SaveModelStrategy(
             fraction_fit=fraction_fit,
@@ -110,15 +113,16 @@ class Core:
             min_fit_clients=min_fit_clients,
             min_evaluate_clients=min_eval_clients,
             min_available_clients=min_available_clients,
-            evaluate_fn=evaluation.get_evaluation(model),
+            evaluate_fn=evaluation.get_evaluation(models[self.__model_name]),
             on_fit_config_fn=evaluation.fit_config,
             on_evaluate_config_fn=evaluation.evaluate_config,
             initial_parameters=initial_parameters,
+            model_name=self.__model_name
         )
 
     def start_server(self,
                      flower_server_address: str = FLOWER_SERVER_ADDRESS,
-                     flower_server_port: str = FLOWER_SERVER_PORT,
+                     flower_server_port: str = None,
                      secure: bool = SECURE_MODE) -> None:
         """
         This method starts the Flower server inside the Fenoman server, where Fenoman clients can connect using the
@@ -153,13 +157,33 @@ class Core:
 
         :return: state of health status
         """
-        for component in [model, evaluation, nosql_database]:
+        for component in [evaluation, nosql_database]:
             if not component.get_health_state():
                 return False
         return True
 
 
 if __name__ == '__main__':
-    core = Core()
+    parser = argparse.ArgumentParser(
+        description='Set the init port and model for the given flower server.'
+    )
+
+    parser.add_argument(
+        '--port',
+        type=str,
+        help='Port number of the given FLower server.',
+        required=True
+    )
+
+    parser.add_argument(
+        '--model_name',
+        type=str,
+        help='Name of the model that must be used to host by the Flower server.',
+        required=True
+    )
+
+    args = parser.parse_args()
+
+    core = Core(model_name=args.model_name)
+    core.start_server(flower_server_port=args.port)
     logging.info("Starting Flower server.")
-    core.start_server()

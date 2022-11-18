@@ -1,11 +1,11 @@
 from flask import Flask, Response, send_file, request
 import timeloop
 from datetime import timedelta
-from configuration.flower_configuration import SERVER_JOB_TIMER_MINUTES
+from configuration.flower_configuration import SERVER_JOB_TIMER_MINUTES, FLOWER_SERVER_PORT
 from configuration.application_configuration import *
 from configuration.model_configuration import *
 from helpers.applicator import applicator
-from model.model import model
+from model.model import models
 import subprocess
 
 
@@ -14,20 +14,28 @@ tl = timeloop.Timeloop()
 core = None
 
 
-@tl.job(interval=timedelta(minutes=SERVER_JOB_TIMER_MINUTES))
-def start_fl_server() -> None:
-    """
-    This is an automatic function which is important to incrementally start the flower server and do the teaching. You
-    can control the increment based on the timer. It is important to note that synchronous startup of the teaching
-    server cannot run two at the same time, so the system schedules this automatically. In case of a backlog, the next
-    one will start automatically after the termination of a flower server.
+def flower_server_scheduling() -> None:
+    @tl.job(interval=timedelta(minutes=SERVER_JOB_TIMER_MINUTES))
+    def __start_fl_server(model_name: str, flower_server_port: str) -> None:
+        """
+        This is an automatic function which is important to incrementally start the flower server and do the teaching. You
+        can control the increment based on the timer. It is important to note that synchronous startup of the teaching
+        server cannot run two at the same time, so the system schedules this automatically. In case of a backlog, the next
+        one will start automatically after the termination of a flower server.
 
-    :return: None
-    """
-    subprocess.call('python3 ./core/core.py', shell=True)
+        :return: None
+        """
+        subprocess.call(f'python3 ./core/core.py --model_name {model_name} --port {flower_server_port}', shell=True)
+
+    for model_name, flower_server_port in zip(MODEL_NAME, FLOWER_SERVER_PORT):
+        __start_fl_server(
+            model_name=model_name,
+            flower_server_port=flower_server_port
+        )
+        tl.start(block=False)
 
 
-tl.start(block=False)
+flower_server_scheduling()
 
 
 @app.route(f'{BASE_URI}/healthz', methods=["GET"])
@@ -66,7 +74,12 @@ def get_available_models() -> Response:
     if not auth_state:
         return auth_resp
 
-    return Response(MODEL_NAME, 200)
+    response_data = {
+        'models': MODEL_NAME,
+        'ports': FLOWER_SERVER_PORT
+    }
+
+    return Response(response_data, 200)
 
 
 @app.route(f'{BASE_URI}/get_model/<model_name>', methods=["GET"])
@@ -90,8 +103,8 @@ def get_latest_model(model_name: str) -> Response:
     if not auth_state:
         return auth_resp
 
-    if model_name == MODEL_NAME:
-        model.save_model()
-        return send_file(path_or_file=f"model/temp/{MODEL_NAME}.h5")
+    if model_name in models.keys():
+        models[model_name].save_model()
+        return send_file(path_or_file=f"model/temp/{models[model_name].get_model_name()}.h5")
     else:
         return Response('Given model name is not available on the server.', 404)

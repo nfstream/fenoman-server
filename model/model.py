@@ -1,26 +1,25 @@
-import tensorflow as tf
-from sklearn.preprocessing import LabelEncoder
 from configuration.model_configuration import *
-from patterns.singleton import singleton
+from sklearn.preprocessing import LabelEncoder
 from typing import Any
 from data.data import data
 from database.nosql_database import nosql_database
 import pickle
 
 
-@singleton
 class Model:
-    def __init__(self) -> None:
+    def __init__(self, model_name: str) -> None:
         """
         The model class is a wrapper class that contains a Keras-based instance. Currently, the solution only supports
         the direct implementation of the model, which is defined in the next block.
 
         :return: None
         """
+        self.__model_name = model_name
+
         # Checking if model exists in database
         records, state = nosql_database.last_n_element(
             search_field={
-                'model_name': MODEL_NAME
+                'model_name': self.__model_name
             },
             key='timestamp',
             limit=1)
@@ -29,20 +28,9 @@ class Model:
             print("loading model in Model class from mongodb")
             self.__model = pickle.loads(records[0]['model'])
         else:
-            ########################################
-            ### Internal model definition block. ###
-            ########################################
-            '''
-            TODO this should be further developed in the future, so that any model can be squeezed in, not just this one!
-            '''
-            self.__model = tf.keras.Sequential()
-            self.__model.add(tf.keras.layers.Dense(13, input_dim=13, activation='relu'))
-            self.__model.add(tf.keras.layers.Dense(200, activation='relu'))
-            self.__model.add(tf.keras.layers.Dense(500, activation='softmax'))
-            self.__model.compile("adam", "sparse_categorical_crossentropy", metrics=["accuracy"])
-            ########################################
-            ### Internal model definition block. ###
-            ########################################
+            module = __import__(f'temp.{self.__model_name}')
+            external_model_class = getattr(module, 'ExternalModel')
+            self.__model = external_model_class.get_model()
 
             x_train, y_train, x_val, y_val = data.load_data()
 
@@ -62,6 +50,9 @@ class Model:
             )
 
         self.save_model()
+
+    def get_model_name(self) -> str:
+        return self.__model_name
 
     def __call__(self) -> Any:
         """
@@ -93,4 +84,6 @@ class Model:
         return True
 
 
-model = Model()
+models = {}
+for model_name in MODEL_NAME:
+    models[model_name] = Model(model_name=model_name)
