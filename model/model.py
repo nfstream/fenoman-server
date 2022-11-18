@@ -4,6 +4,7 @@ from typing import Any
 from data.data import data
 from database.nosql_database import nosql_database
 import pickle
+import importlib
 
 
 class Model:
@@ -28,9 +29,8 @@ class Model:
             print("loading model in Model class from mongodb")
             self.__model = pickle.loads(records[0]['model'])
         else:
-            module = __import__(f'temp.{self.__model_name}')
-            external_model_class = getattr(module, 'ExternalModel')
-            self.__model = external_model_class.get_model()
+            module = importlib.import_module(f'model.temp.{self.__model_name}')
+            self.__model = module.get_model()
 
             x_train, y_train, x_val, y_val = data.load_data()
 
@@ -70,7 +70,7 @@ class Model:
         :return: None
         """
         self.__model.save(
-            f'model/temp/{MODEL_NAME}.h5',
+            f'model/temp/{self.__model_name}.h5',
             overwrite=True
         )
 
