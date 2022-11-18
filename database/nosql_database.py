@@ -3,6 +3,7 @@ from pymongo.results import UpdateResult
 from configuration.nosql_database_configuration import *
 from typing import Tuple, Union
 from patterns.singleton import singleton
+import logging
 
 
 @singleton
@@ -50,8 +51,10 @@ class NoSqlDataBase:
             _, exists = self.get_element(search_data_dict)
 
         if exists:
+            logging.debug('NOSQLDATABASE: Cannot insert element. Element already exists in the database!')
             res, success = 'Element already exists in the DataBase!', False
         else:
+            logging.debug('NOSQLDATABASE: Inserint element into database.')
             res, success = self.__collection.insert_one(insert_data_dict), True
         return str(res), success
 
@@ -67,8 +70,10 @@ class NoSqlDataBase:
         if self.__collection.count_documents(search_fields) > 0:
             for element in self.__collection.find(search_fields):
                 resp_data.append(element)
+            logging.debug('NOSQLDATABASE: Returning elements from database.')
             return resp_data, True
         else:
+            logging.debug('NOSQLDATABASE: Element does not exists in the DataBase!')
             return 'Element does not exists in the DataBase!', False
 
     def delete_element(self, search_fields: dict) -> NotImplemented:
@@ -79,6 +84,7 @@ class NoSqlDataBase:
         :param search_fields: search value of records to be deleted
         :return: number of records deleted
         """
+        logging.warning('NOSQLDATABASE: Delete element is not implemented!')
         return NotImplemented
         #resp = self.__collection.delete_many(search_fields)
         #if resp.deleted_count > 0:
@@ -92,6 +98,7 @@ class NoSqlDataBase:
 
         :return: NotImplemented
         """
+        logging.warning('NOSQLDATABASE: Drop collection is not implemented!')
         return NotImplemented
         #self.__collection.drop()
 
@@ -104,6 +111,7 @@ class NoSqlDataBase:
         :param update_data: the new data to overwrite the current data stored in the database
         :return: NotImplemented
         """
+        logging.warning('NOSQLDATABASE: Update Element is not implemented!')
         return NotImplemented
         #resp = self.__collection.update_many(search_fields, {"$set": update_data})
         #return resp
@@ -123,8 +131,10 @@ class NoSqlDataBase:
             resp_data.append(element)
 
         if len(resp_data) > 0:
+            logging.debug('NOSQLDATABASE: Returning the last n element.')
             return resp_data, True
         else:
+            logging.debug('NOSQLDATABASE: No element in the DataBase with the given search_field.')
             return 'No element in the DataBase with the given search_field', False
 
     def get_health_state(self) -> bool:
@@ -133,6 +143,7 @@ class NoSqlDataBase:
 
         :return: state of health status
         """
+        logging.debug('NOSQLDATABASE: Returning health state.')
         try:
             self.__client.server_info()
             return True
@@ -142,4 +153,6 @@ class NoSqlDataBase:
             return False
 
 
+logging.debug('NOSQLDATABASE: Creating an instance of nosqldatabase class.')
 nosql_database = NoSqlDataBase()
+logging.debug('NOSQLDATABASE: Created instance of nosqldatabase class.')

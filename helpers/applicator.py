@@ -2,6 +2,7 @@ from helpers.argumenter import argumenter
 from helpers.authenticator import authenticator
 from flask import Response
 from typing import Union, Tuple
+import logging
 
 
 class Applicator:
@@ -14,6 +15,7 @@ class Applicator:
         :param keys: actual keys that appears in the call
         :return: tuple of success as a bool and a Response object
         """
+        logging.debug('APPLICATOR: Checking headers.')
         argumenter_msg, argumenter_state = argumenter.check_arguments(
             arguments=arguments,
             keys=keys
@@ -30,10 +32,13 @@ class Applicator:
         :param api_key: api key provided in the http call
         :return: tuple of success as a bool and a Response object
         """
+        logging.debug('APPLICATOR: Checking authentication.')
         authentication_msg, authentication_state = authenticator.check_api_key(api_key)
         if not authentication_state:
             return Response(authentication_msg, 401), False
         return None, True
 
 
+logging.debug('APPLICATOR: Creating an instance of applicator class.')
 applicator = Applicator()
+logging.debug('APPLICATOR: Created instance of applicator class.')

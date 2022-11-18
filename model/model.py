@@ -5,6 +5,7 @@ from data.data import data
 from database.nosql_database import nosql_database
 import pickle
 import importlib
+import logging
 
 
 class Model:
@@ -26,9 +27,10 @@ class Model:
             limit=1)
 
         if state:
-            print("loading model in Model class from mongodb")
+            logging.debug('MODEL: Loading model in Model class from mongodb')
             self.__model = pickle.loads(records[0]['model'])
         else:
+            logging.debug('MODEL: Loading model from local temp folder.')
             module = importlib.import_module(f'model.temp.{self.__model_name}')
             self.__model = module.get_model()
 
@@ -52,6 +54,7 @@ class Model:
         self.save_model()
 
     def get_model_name(self) -> str:
+        logging.debug('MODEL: Returning model name of the instance.')
         return self.__model_name
 
     def __call__(self) -> Any:
@@ -61,6 +64,7 @@ class Model:
 
         :return: Keras Model
         """
+        logging.debug('MODEL: Calling underlying Keras model.')
         return self.__model
 
     def save_model(self) -> None:
@@ -69,6 +73,7 @@ class Model:
 
         :return: None
         """
+        logging.debug('MODEL: Saving model into temp folder.')
         self.__model.save(
             f'model/temp/{self.__model_name}.h5',
             overwrite=True
@@ -81,9 +86,13 @@ class Model:
 
         :return: state of health status
         """
+        logging.debug('MODEL: Returning health state.')
         return True
 
 
+logging.debug('MODEL: Creating model classes.')
 models = {}
 for model_name in MODEL_NAME:
     models[model_name] = Model(model_name=model_name)
+    logging.debug(f'MODEL: {model_name} instance created.')
+logging.debug('MODEL: Created model classes.')

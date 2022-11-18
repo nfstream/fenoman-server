@@ -1,6 +1,7 @@
 import pandas
 from nfstream import NFStreamer
 from configuration.nfstream_configuration import *
+import logging
 
 
 class Capturer:
@@ -26,12 +27,15 @@ class Capturer:
         self.__splt_analysis = splt_analysis
         self.__max_nflows = max_nflows
 
+        logging.debug('CAPTURER: Starting network monitoring.')
+        logging.info(f'CAPTURER: Capturing {self.__max_nflows} flows.')
         self.__nsftreamer = NFStreamer(
             source=self.__source,
             statistical_analysis=self.__statistical_analysis,
             splt_analysis=self.__splt_analysis,
             max_nflows=self.__max_nflows
         )
+        logging.info('CAPTURER: Finished capturing!')
 
     def generate_export(self,
                         columns_to_anonymize: list = COLUMNS_TO_ANONYMIZE) -> pandas.DataFrame:
@@ -43,6 +47,7 @@ class Capturer:
         algorithm.
         :return: Pandas DateFrame containing the generated data
         """
+        logging.debug('CAPTURER: Generating pandas dataframe export.')
         self.__columns_to_anonymize = columns_to_anonymize
         self.__generated_dataframe = self.__nsftreamer.to_pandas(
             columns_to_anonymize=self.__columns_to_anonymize

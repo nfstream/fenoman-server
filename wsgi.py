@@ -4,6 +4,8 @@ import logging
 
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.DEBUG)
+
     from waitress import serve
-    logging.info('Starting FeNOMan server.')
+    logging.info('WSGI: Starting FeNOMan server.')
     serve(app, host=HOST_URI, port=HOST_PORT)

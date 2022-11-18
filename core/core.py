@@ -101,10 +101,12 @@ class Core:
             limit=1)
 
         if state:
+            logging.debug('CORE: Loading model from database.')
             bytes_io = BytesIO(records[0]['weights'])
             ndarry_deserialized = np.load(bytes_io, allow_pickle=True)
             initial_parameters = fl.common.ndarrays_to_parameters(cast(fl.common.NDArray, ndarry_deserialized))
         else:
+            logging.debug('CORE: Loading model from local temp folder.')
             initial_parameters = fl.common.ndarrays_to_parameters(models[self.__model_name]().get_weights())
 
         self.__strategy = SaveModelStrategy(
@@ -157,6 +159,7 @@ class Core:
 
         :return: state of health status
         """
+        logging.debug('CORE: Returning health state.')
         for component in [evaluation, nosql_database]:
             if not component.get_health_state():
                 return False
@@ -184,6 +187,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    logging.info(f'CORE: Starting Flower server on {args.port} port with {args.model_name} model.')
     core = Core(model_name=args.model_name)
     core.start_server(flower_server_port=args.port)
-    logging.info("Starting Flower server.")

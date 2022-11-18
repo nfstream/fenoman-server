@@ -7,6 +7,7 @@ from configuration.model_configuration import *
 from helpers.applicator import applicator
 from model.model import models
 import subprocess
+import logging
 
 
 app = Flask(__name__)
@@ -61,6 +62,7 @@ def get_available_models() -> Response:
 
     :return: Response object with data.
     """
+    logging.debug('APP: Client requesting available models.')
     header_resp, header_state = applicator.headers(
         ['Ocp-Apim-Key'],
         [*[str(x) for x in request.headers.keys()], *request.values.keys()]
@@ -78,7 +80,7 @@ def get_available_models() -> Response:
         'models': MODEL_NAME,
         'ports': FLOWER_SERVER_PORT
     }
-
+    logging.debug('APP: Returning available models.')
     return Response(response_data, 200)
 
 
@@ -90,6 +92,7 @@ def get_latest_model(model_name: str) -> Response:
     :param model_name: model name that must be downloaded
     :return: Response object with model data
     """
+    logging.debug('APP: Client requesting model.')
     header_resp, header_state = applicator.headers(
         ['Ocp-Apim-Key'],
         [*[str(x) for x in request.headers.keys()], *request.values.keys()]
@@ -105,6 +108,8 @@ def get_latest_model(model_name: str) -> Response:
 
     if model_name in models.keys():
         models[model_name].save_model()
+        logging.debug('APP: Returning model to the client.')
         return send_file(path_or_file=f"model/temp/{models[model_name].get_model_name()}.h5")
     else:
+        logging.debug('APP: Given model name is not available on the server.')
         return Response('Given model name is not available on the server.', 404)

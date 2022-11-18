@@ -7,6 +7,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 from typing import Tuple, Any
 import os
 from .capturer import Capturer
+import logging
 
 
 @singleton
@@ -19,14 +20,18 @@ class Data:
         :param n_features: The number of identifiable features in the data set that are used in the model training.
         :return: None
         """
+        logging.debug('DATA: Reading in data uri.')
         if not os.path.exists(df):
+            logging.debug('DATA: The file does not exists! Calling the Capturer.')
             capturer = Capturer()
             generated_pandas = capturer.generate_export()
             self.__data = generated_pandas
         else:
             if df.lower().endswith('.csv'):
+                logging.debug('DATA: Reading .CSV data.')
                 self.__data = pd.read_csv(df)
             elif df.lower().endswith('.pcap'):
+                logging.debug('DATA: Reading .PCAP with Capturer.')
                 capturer = Capturer(
                     source=df,
                     max_nflows=0
@@ -34,6 +39,7 @@ class Data:
                 generated_pandas = capturer.generate_export()
                 self.__data = generated_pandas
             else:
+                logging.error('DATA: Unsupported Data File!')
                 raise Exception('Unsupported Data file!')
         nfstream_data = self.__data
 
@@ -101,6 +107,7 @@ class Data:
         :param target_field: y field
         :return: train and validation split
         """
+        logging.debug('DATA: Splitting the dataset.')
         train, validation = train_test_split(self.__data, test_size=TRAIN_VALIDATION_SPLIT)
 
         def __separate_target(df):
@@ -112,4 +119,6 @@ class Data:
         return x_train, y_train, x_val, y_val
 
 
+logging.debug('DATA: Creating an instance of data class.')
 data = Data()
+logging.debug('DATA: Created instance of data class.')

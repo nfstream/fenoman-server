@@ -12,6 +12,7 @@ from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_
 import matplotlib.pyplot as plt
 from configuration.model_configuration import *
 import time
+import logging
 
 
 @singleton
@@ -24,6 +25,7 @@ class Evaluation:
         :param model: input Model class that defined by FeNOMan Server
         :return: evaluation function
         """
+        logging.debug('EVALUATION: Calling get evaluate method.')
         _, _, x_val, y_val = data.load_data()
 
         lb = LabelEncoder()
@@ -67,6 +69,7 @@ class Evaluation:
         :param rnd: fit round counter
         :return: dictionary of configuration settings
         """
+        logging.debug('EVALUATION: Calling fit config method.')
         config = {
             "batch_size": EVALUATION_BATCH_SIZE,
             "local_epochs": EVALUATION_LOCAL_EPOCHS_MINIMUM if
@@ -85,6 +88,7 @@ class Evaluation:
         :param rnd: evaluation step counter
         :return: dictionary of validation steps
         """
+        logging.debug('EVALUATION: Calling evaluate config method.')
         val_steps = EVALUATION_VALIDATION_STEP_MINIMUM if \
             rnd < EVALUATION_VALIDATION_STEP_ROUND_THRESHOLD else EVALUATION_VALIDATION_STEP_MAXIMUM
         return {"val_steps": val_steps}
@@ -99,6 +103,7 @@ class Evaluation:
         :param labels: labels that should be used in the matrix
         :return: None
         """
+        logging.debug('EVALUATION: Generating confusion matrix.')
         x_train, y_train, x_val, y_val = data.load_data()
         predictions = model().predict(x_val)
         predictions = np.argmax(predictions, axis=1).tolist()
@@ -111,6 +116,7 @@ class Evaluation:
 
         timestamp = time.strftime('%b-%d-%Y_%H%M', time.localtime())
 
+        logging.debug('EVALUATION: Saving confusion matrix into temp folder.')
         plt.savefig(f'model/temp/{MODEL_NAME}_confusion_matrix_{timestamp}.png')
 
     @staticmethod
@@ -120,7 +126,10 @@ class Evaluation:
 
         :return: state of health status
         """
+        logging.debug('EVALUATION: Returning health state.')
         return True
 
 
+logging.debug('EVALUATION: Creating an instance of evaluation class.')
 evaluation = Evaluation()
+logging.debug('EVALUATION: Created instance of evaluation class.')
