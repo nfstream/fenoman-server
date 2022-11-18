@@ -23,8 +23,11 @@ import pickle
 import logging
 
 
+core_model_name = None
+
+
 class SaveModelStrategy(fl.server.strategy.FedAvg):
-    def aggregate_fit(self, rnd: int, results, failures, model_name: str) -> Any:
+    def aggregate_fit(self, rnd: int, results, failures) -> Any:
         """
         This custom strategy saves out the model into the mongo database in each round.
 
@@ -36,6 +39,8 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
         :param failures: Exceptions that occurred while the server was waiting for client updates.
         :return: The aggregated evaluation result. Aggregation typically uses some variant of a weighted average.
         """
+        global core_model_name
+
         weights = super().aggregate_fit(rnd, results, failures)
         if weights is not None:
             # Save weights
@@ -50,10 +55,10 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
                     "timestamp": timestamp
                 },
                 insert_data_dict={
-                    "model_name": MODEL_NAME,
+                    "model_name": core_model_name,
                     "timestamp": timestamp,
                     "weights": bytes_io.getvalue(),
-                    "model": pickle.dumps(models[model_name]())
+                    "model": pickle.dumps(models[core_model_name]())
                 }
             )
         return weights
@@ -83,6 +88,8 @@ class Core:
         :param num_rounds:
         :return: None
         """
+        global core_model_name
+
         self.__fraction_fit = fraction_fit
         self.__fraction_eval = fraction_eval
         self.__min_fit_clients = min_fit_clients
@@ -90,7 +97,7 @@ class Core:
         self.__min_available_clients = min_available_clients
         self.__num_rounds = num_rounds
         self.__model_name = model_name
-
+        core_model_name = model_name
         # We must load in the last model that was used in a given model_name configuration scenario
         initial_parameters = None
         records, state = nosql_database.last_n_element(
@@ -118,8 +125,7 @@ class Core:
             evaluate_fn=evaluation.get_evaluation(models[self.__model_name]),
             on_fit_config_fn=evaluation.fit_config,
             on_evaluate_config_fn=evaluation.evaluate_config,
-            initial_parameters=initial_parameters,
-            model_name=self.__model_name
+            initial_parameters=initial_parameters
         )
 
     def start_server(self,
