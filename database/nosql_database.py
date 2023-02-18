@@ -9,21 +9,19 @@ import logging
 @singleton
 class NoSqlDataBase:
     def __init__(self,
-                 hostname: str = DATABASE_HOST,
-                 port: int = DATABASE_PORT,
+                 database_connection_string: str = DATABASE_CONNECTION_STRING,
                  database: str = DATABASE,
                  collection: str = COLLECTION) -> None:
         """
         Initialization function, creates the database if it does not exist, and the collection.
 
         :rtype None
-        :param hostname: host uri of the database localhost or 0.0.0.0 if the database is on the same host as the server
-        :param port: database port
+        :param database_connection_string: connection string of the database
         :param database: database name
         :param collection: collection name
         :return: None
         """
-        self.__client = pymongo.MongoClient(host=hostname, port=port)
+        self.__client = pymongo.MongoClient(database_connection_string)
         self.__database_name = database
         self.__collection_name = collection
 
