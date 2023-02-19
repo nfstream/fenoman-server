@@ -8,6 +8,8 @@ RUN python3 -m venv venv
 WORKDIR /home/fenoman
 COPY . .
 
+RUN chmod -R 777 /home/fenoman/model/temp
+
 RUN apt update
 RUN apt-get install -y \
         build-essential \
