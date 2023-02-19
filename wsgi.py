@@ -5,6 +5,7 @@ import logging
 
 
 if __name__ == "__main__":
+    # TODO argparse logg level setter in environment variable
     logger_root = logging.getLogger()
     logger_root.setLevel(logging.DEBUG)
     logger_handler = logging.StreamHandler(sys.stdout)

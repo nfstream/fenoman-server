@@ -1,3 +1,4 @@
+#TODO environment variables
 SOURCE = 'eth0'
 STATISTICAL_ANALYSIS = True
 SPLT_ANALYSIS = 10

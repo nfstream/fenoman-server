@@ -1,3 +1,4 @@
+#TODO environment variables
 HOST_URI = "0.0.0.0"
 HOST_PORT = 8081
 BASE_URI = "/api/v1"

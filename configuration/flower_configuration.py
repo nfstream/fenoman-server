@@ -1,3 +1,4 @@
+#TODO environment variables
 FRACTION_FIT = 0.3
 FRACTION_EVAL = 0.2
 MIN_FIT_CLIENTS = 1
@@ -7,4 +8,5 @@ NUM_ROUNDS = 1
 SERVER_JOB_TIMER_MINUTES = 1
 SECURE_MODE = False
 FLOWER_SERVER_ADDRESS = '0.0.0.0'
-FLOWER_SERVER_PORT = ['8090', '8091', '8092', '8093', '8094']
+#TODO dynamic port allocation should be added
+FLOWER_SERVER_PORT = ['8090', '8091']

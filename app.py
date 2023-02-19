@@ -1,3 +1,8 @@
+import json
+import sys
+import threading
+import socket
+import model
 from flask import Flask, Response, send_file, request
 import timeloop
 from datetime import timedelta
@@ -8,35 +13,36 @@ from helpers.applicator import applicator
 from model.model import models
 import subprocess
 import logging
+import os
 
 
 app = Flask(__name__)
 tl = timeloop.Timeloop()
-core = None
 
 
+@tl.job(interval=timedelta(minutes=SERVER_JOB_TIMER_MINUTES))
 def flower_server_scheduling() -> None:
-    @tl.job(interval=timedelta(minutes=SERVER_JOB_TIMER_MINUTES))
-    def __start_fl_server(model_name: str, flower_server_port: str) -> None:
-        """
-        This is an automatic function which is important to incrementally start the flower server and do the teaching. You
-        can control the increment based on the timer. It is important to note that synchronous startup of the teaching
-        server cannot run two at the same time, so the system schedules this automatically. In case of a backlog, the next
-        one will start automatically after the termination of a flower server.
+    """
+    This is an automatic function which is important to incrementally start the flower server and do the teaching. You
+    can control the increment based on the timer. It is important to note that synchronous startup of the teaching
+    server cannot run two at the same time, so the system schedules this automatically. In case of a backlog, the next
+    one will start automatically after the termination of a flower server.
 
-        :return: None
-        """
-        subprocess.call(f'python3 ./core/core.py --model_name {model_name} --port {flower_server_port}', shell=True)
-
+    :return: None
+    """
     for model_name, flower_server_port in zip(MODEL_NAME, FLOWER_SERVER_PORT):
-        __start_fl_server(
-            model_name=model_name,
-            flower_server_port=flower_server_port
-        )
-        tl.start(block=False)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock_state = sock.connect_ex(('127.0.0.1', int(flower_server_port)))
+        init_process_state = False
+        # If socket is open then skip the init
+        if sock_state != 0:
+            init_process_state = True
+        sock.close()
 
-
-flower_server_scheduling()
+        if init_process_state:
+            subprocess.Popen(f'python ./core/core.py --model_name {model_name} --port {flower_server_port}',
+                             shell=True,
+                             start_new_session=True)
 
 
 @app.route(f'{BASE_URI}/healthz', methods=["GET"])
@@ -46,13 +52,7 @@ def default_route() -> Response:
 
     :return: Response object of the success state
     """
-    if core is None:
-        return Response("Init in progress", status=100)
-
-    if core.get_health_state():
-        return Response("OK", status=200)
-    else:
-        return Response("Internal error.", status=500)
+    return Response("OK", status=200)
 
 
 @app.route(f'{BASE_URI}/get_available_models', methods=["GET"])
@@ -81,7 +81,7 @@ def get_available_models() -> Response:
         'ports': FLOWER_SERVER_PORT
     }
     logging.debug('APP: Returning available models.')
-    return Response(response_data, 200)
+    return Response(json.dumps(response_data), 200)
 
 
 @app.route(f'{BASE_URI}/get_model/<model_name>', methods=["GET"])
@@ -113,3 +113,6 @@ def get_latest_model(model_name: str) -> Response:
     else:
         logging.debug('APP: Given model name is not available on the server.')
         return Response('Given model name is not available on the server.', 404)
+
+
+tl.start(block=False)
