@@ -29,7 +29,7 @@ class Data:
         else:
             if df.lower().endswith('.csv'):
                 logging.debug('DATA: Reading .CSV data.')
-                self.__data = pd.read_csv(df)
+                self.__data = pd.read_csv(df, low_memory=False)
             elif df.lower().endswith('.pcap'):
                 logging.debug('DATA: Reading .PCAP with Capturer.')
                 capturer = Capturer(

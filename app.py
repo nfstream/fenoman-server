@@ -1,8 +1,5 @@
 import json
-import sys
-import threading
 import socket
-import model
 from flask import Flask, Response, send_file, request
 import timeloop
 from datetime import timedelta
@@ -13,7 +10,6 @@ from helpers.applicator import applicator
 from model.model import models
 import subprocess
 import logging
-import os
 
 
 app = Flask(__name__)
