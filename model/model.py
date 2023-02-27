@@ -44,7 +44,7 @@ class Model:
                 x_train,
                 y_train,
                 batch_size=MODEL_BATCH_SIZE,
-                epochs=MODE_EPOCHS,
+                epochs=MODEl_EPOCHS,
                 # We pass some validation for
                 # monitoring validation loss and metrics
                 # at the end of each epoch

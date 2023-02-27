@@ -1,4 +1,5 @@
-#TODO environment variables
-MODEL_NAME = ['DENSE_SEQUENTIAL', 'DENSE_SEQUENTIAL_v2']
-MODEL_BATCH_SIZE = 64
-MODE_EPOCHS = 1
+import os
+
+MODEL_NAME: list = list(os.getenv('MODEL_NAME', ['LSTM']))
+MODEL_BATCH_SIZE: int = int(os.getenv('MODEL_BATCH_SIZE', 64))
+MODEl_EPOCHS: int = int(os.getenv('MODEL_EPOCHS', 1))

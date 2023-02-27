@@ -16,7 +16,6 @@ from database.nosql_database import nosql_database
 import time
 import numpy as np
 from io import BytesIO
-from configuration.model_configuration import *
 from typing import cast, Any
 from pathlib import Path
 import pickle

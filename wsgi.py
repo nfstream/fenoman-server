@@ -2,15 +2,15 @@ import sys
 from app import app
 from configuration.application_configuration import *
 import logging
+from configuration.application_configuration import LOGGING_LEVEL, LOGGING_FORMATTER
 
 
 if __name__ == "__main__":
-    # TODO argparse logg level setter in environment variable
     logger_root = logging.getLogger()
-    logger_root.setLevel(logging.DEBUG)
+    logger_root.setLevel(getattr(logging, LOGGING_LEVEL))
     logger_handler = logging.StreamHandler(sys.stdout)
-    logger_handler.setLevel(logging.DEBUG)
-    logger_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger_handler.setLevel(getattr(logging, LOGGING_LEVEL))
+    logger_formatter = logging.Formatter(LOGGING_FORMATTER)
     logger_handler.setFormatter(logger_formatter)
     logger_root.addHandler(logger_handler)
 

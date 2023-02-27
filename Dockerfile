@@ -2,6 +2,10 @@ ARG PYTHON_VERSION=3.8
 
 FROM python:$PYTHON_VERSION
 
+ENV FENOMAN_SERVER_PORT=8081
+ENV FLOWER_PORT_RANGE_START=8090
+ENV FLOWER_PORT_RANGE_END=8094
+
 RUN pip install virtualenv
 RUN python3 -m venv venv
 
@@ -40,7 +44,7 @@ RUN pip install --upgrade pip && \
 	pip install --upgrade setuptools && \
     pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8081 8090-8094
+EXPOSE $FENOMAN_SERVER_PORT $FLOWER_PORT_RANGE_START-$FLOWER_PORT_RANGE_END
 USER fenoman
 
 ENTRYPOINT ["python3"]
